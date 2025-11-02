@@ -1,0 +1,195 @@
+<div class="min-h-screen bg-white dark:bg-gray-900" *ngIf="campaign() as campaign">
+  <!-- Back Button -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <button class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors duration-200 flex items-center gap-2" (click)="goBack()">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+      </svg>
+      Back to Explore
+    </button>
+  </div>
+
+  <!-- Hero Section -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-theme overflow-hidden border border-gray-200 dark:border-gray-700">
+      <div class="md:flex">
+        <div class="md:w-1/2">
+          <img [src]="campaign.image" [alt]="campaign.title" class="w-full h-64 md:h-full object-cover">
+        </div>
+        <div class="md:w-1/2 p-8">
+          <div class="text-sm font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-2">{{ campaign.category }}</div>
+          <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">{{ campaign.title }}</h1>
+          <p class="text-gray-600 dark:text-gray-300 text-lg mb-6">{{ campaign.description }}</p>
+
+          <!-- Progress Section -->
+          <div class="mb-6">
+            <div class="grid grid-cols-3 gap-4 mb-4">
+              <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ formatCurrency(campaign.raised) }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">raised</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ campaign.backers }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">backers</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ campaign.daysLeft }}</div>
+                <div class="text-sm text-gray-600 dark:text-gray-400">days left</div>
+              </div>
+            </div>
+
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-2">
+              <div class="bg-blue-600 dark:bg-blue-500 h-3 rounded-full transition-all duration-500" [style.width.%]="getProgressPercentage()"></div>
+            </div>
+
+            <div class="flex justify-between text-sm">
+              <span class="font-semibold text-gray-900 dark:text-white">{{ getProgressPercentage().toFixed(0) }}% funded</span>
+              <span class="text-gray-600 dark:text-gray-400">Goal: {{ formatCurrency(campaign.goal) }}</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200" (click)="goBack()">
+              Back this project
+            </button>
+            <button class="bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 px-6 py-3 rounded-lg font-semibold transition-colors duration-200" (click)="shareCampaign()">
+              Share
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left Column -->
+      <div class="lg:col-span-2">
+        <!-- Tabs -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme border border-gray-200 dark:border-gray-700 mb-6">
+          <div class="border-b border-gray-200 dark:border-gray-700">
+            <div class="flex">
+              <button
+                class="flex-1 px-6 py-4 text-center font-medium transition-colors duration-200"
+                [class]="activeTab() === 'story'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
+                (click)="setActiveTab('story')">
+                Story
+              </button>
+              <button
+                class="flex-1 px-6 py-4 text-center font-medium transition-colors duration-200"
+                [class]="activeTab() === 'updates'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
+                (click)="setActiveTab('updates')">
+                Updates ({{ campaign.updates.length }})
+              </button>
+              <button
+                class="flex-1 px-6 py-4 text-center font-medium transition-colors duration-200"
+                [class]="activeTab() === 'faqs'
+                  ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
+                (click)="setActiveTab('faqs')">
+                FAQs
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab Content -->
+          <div class="p-6">
+            <!-- Story Tab -->
+            <div *ngIf="activeTab() === 'story'">
+              <div class="prose dark:prose-invert max-w-none" [innerHTML]="campaign.fullDescription"></div>
+            </div>
+
+            <!-- Updates Tab -->
+            <div *ngIf="activeTab() === 'updates'">
+              <div class="space-y-6">
+                @for (update of campaign.updates; track update.id) {
+                  <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">{{ update.title }}</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{{ update.date }}</p>
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">{{ update.content }}</p>
+                    <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                      <span class="mr-1">❤️</span>
+                      {{ update.likes }} likes
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- FAQs Tab -->
+            <div *ngIf="activeTab() === 'faqs'">
+              <div class="space-y-6">
+                @for (faq of campaign.faqs; track faq.question) {
+                  <div class="border-b border-gray-200 dark:border-gray-700 pb-6 last:border-b-0">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">{{ faq.question }}</h3>
+                    <p class="text-gray-600 dark:text-gray-300">{{ faq.answer }}</p>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="space-y-6">
+        <!-- Creator Info -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme border border-gray-200 dark:border-gray-700 p-6">
+          <div class="flex items-start gap-4 mb-4">
+            <img [src]="campaign.creator.avatar" [alt]="campaign.creator.name" class="w-12 h-12 rounded-full object-cover">
+            <div class="flex-1">
+              <h3 class="font-semibold text-gray-900 dark:text-white">{{ campaign.creator.name }}</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">{{ campaign.creator.bio }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ campaign.creator.location }}</p>
+            </div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ campaign.creator.projects }}</div>
+            <div class="text-sm text-gray-600 dark:text-gray-400">projects</div>
+          </div>
+        </div>
+
+        <!-- Rewards Section -->
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme border border-gray-200 dark:border-gray-700 p-6">
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Support this project</h3>
+          <div class="space-y-4">
+            @for (reward of campaign.rewards; track reward.id) {
+              <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+                <div class="flex justify-between items-start mb-2">
+                  <h4 class="font-semibold text-gray-900 dark:text-white">{{ reward.title }}</h4>
+                  <span class="text-lg font-bold text-blue-600 dark:text-blue-400">{{ formatCurrency(reward.amount) }}</span>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 text-sm mb-3">{{ reward.description }}</p>
+                <div class="space-y-2 mb-3">
+                  <div class="text-xs text-gray-600 dark:text-gray-400">
+                    Estimated delivery: {{ reward.estimatedDelivery }}
+                  </div>
+                  @if (reward.limited) {
+                    <div class="text-xs text-orange-600 dark:text-orange-400 font-medium">
+                      Limited ({{ reward.limit! - reward.backers }} left)
+                    </div>
+                  }
+                </div>
+                <div class="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                  {{ reward.backers }} backers
+                </div>
+                <button
+                  class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                  (click)="backProject(reward)"
+                  [disabled]="reward.limited && reward.limit! - reward.backers <= 0">
+                  Select this reward
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

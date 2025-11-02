@@ -1,0 +1,87 @@
+<footer class="bg-gray-900 text-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
+      <!-- Platform Description -->
+      <div class="lg:col-span-2">
+        <h3 class="text-xl font-bold mb-4">CrowdFund</h3>
+        <p class="text-gray-300 mb-6">
+          Empowering creators and innovators through decentralized crowdfunding.
+          Build the future with blockchain-powered funding and community support.
+        </p>
+        <div class="flex space-x-4">
+          <a
+            *ngFor="let social of socialLinks"
+            [href]="social.url"
+            [attr.aria-label]="social.name"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="w-8 h-8 bg-gray-700 hover:bg-blue-600 rounded-full flex items-center justify-center transition-colors duration-200">
+            <i [class]="'fab fa-' + social.icon"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Platform Links -->
+      <div>
+        <h4 class="text-lg font-semibold mb-4">Platform</h4>
+        <ul class="space-y-2">
+          <li *ngFor="let link of footerLinks.platform">
+            <a [routerLink]="link.route" class="text-gray-300 hover:text-white transition-colors duration-200">{{ link.label }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Campaigns Links -->
+      <div>
+        <h4 class="text-lg font-semibold mb-4">Campaigns</h4>
+        <ul class="space-y-2">
+          <li *ngFor="let link of footerLinks.campaigns">
+            <a [routerLink]="link.route" class="text-gray-300 hover:text-white transition-colors duration-200">{{ link.label }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Support Links -->
+      <div>
+        <h4 class="text-lg font-semibold mb-4">Support</h4>
+        <ul class="space-y-2">
+          <li *ngFor="let link of footerLinks.support">
+            <a [routerLink]="link.route" class="text-gray-300 hover:text-white transition-colors duration-200">{{ link.label }}</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Newsletter Signup -->
+      <div class="md:col-span-2 lg:col-span-1">
+        <h4 class="text-lg font-semibold mb-4">Stay Updated</h4>
+        <p class="text-gray-300 mb-4">Get the latest updates on trending campaigns and platform features.</p>
+        <div class="flex">
+          <input
+            type="email"
+            placeholder="Enter your email"
+            class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-l-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            aria-label="Email for newsletter">
+          <button type="button" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-r-lg font-medium transition-colors duration-200">Subscribe</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Bottom -->
+  <div class="border-t border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-400 mb-4 md:mb-0">
+          © {{ currentYear }} CrowdFund. Built on blockchain technology.
+        </p>
+        <div class="flex items-center space-x-4">
+          <a href="/privacy" class="text-gray-400 hover:text-white transition-colors duration-200">Privacy</a>
+          <span class="text-gray-600">•</span>
+          <a href="/terms" class="text-gray-400 hover:text-white transition-colors duration-200">Terms</a>
+          <span class="text-gray-600">•</span>
+          <a href="/cookies" class="text-gray-400 hover:text-white transition-colors duration-200">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

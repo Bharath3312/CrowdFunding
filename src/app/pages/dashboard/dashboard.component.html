@@ -1,0 +1,188 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 px-4 sm:px-6 lg:px-8">
+  <!-- Header Section -->
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme p-6 mb-8 border border-gray-200 dark:border-gray-700">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Dashboard</h1>
+        <p class="text-gray-600 dark:text-gray-300">Monitor your crowdfunding activities and performance</p>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2">
+          <span>➕</span>
+          Create Campaign
+        </button>
+        <button class="bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2">
+          <span>📊</span>
+          View Reports
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme p-6 border border-gray-200 dark:border-gray-700" *ngFor="let stat of stats()">
+      <div class="text-3xl mb-4">{{ stat.icon }}</div>
+      <div>
+        <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{{ stat.title }}</h3>
+        <p class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{{ stat.value }}</p>
+        <div class="flex items-center" [class]="stat.change >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
+          <span class="text-sm mr-1">
+            {{ stat.change > 0 ? '↗' : stat.change < 0 ? '↘' : '→' }}
+          </span>
+          <span class="text-sm font-medium">{{ stat.change > 0 ? '+' : '' }}{{ stat.change }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+    <!-- Campaigns Overview -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme border border-gray-200 dark:border-gray-700">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Your Campaigns</h2>
+          <a routerLink="/create-campaign" class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium">View All</a>
+        </div>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4" *ngFor="let campaign of campaigns()">
+          <div class="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center flex-shrink-0">
+              <span class="text-blue-600 dark:text-blue-400 font-semibold">{{ campaign.title.charAt(0) }}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-medium text-gray-900 dark:text-white truncate">{{ campaign.title }}</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ campaign.category }}</p>
+              <div class="mb-2">
+                <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 mb-1">
+                  <div class="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300" [style.width.%]="campaign.progress"></div>
+                </div>
+                <span class="text-xs text-gray-600 dark:text-gray-400">{{ campaign.progress }}%</span>
+              </div>
+              <div class="flex flex-wrap gap-3 text-xs">
+                <span class="text-gray-600 dark:text-gray-400">
+                  <strong class="text-gray-900 dark:text-white">{{ formatCurrency(campaign.raised) }}</strong> raised
+                </span>
+                <span class="text-gray-600 dark:text-gray-400">
+                  <strong class="text-gray-900 dark:text-white">{{ campaign.backers }}</strong> backers
+                </span>
+                <span class="text-gray-600 dark:text-gray-400" [class]="campaign.daysLeft === 0 ? 'text-green-600 dark:text-green-400' : ''">
+                  <strong class="text-gray-900 dark:text-white">{{ campaign.daysLeft === 0 ? 'Completed' : campaign.daysLeft + ' days' }}</strong> left
+                </span>
+              </div>
+            </div>
+            <div class="flex-shrink-0">
+              <span class="px-2 py-1 text-xs font-medium rounded-full capitalize"
+                    [class]="campaign.status === 'active' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
+                           campaign.status === 'completed' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
+                           campaign.status === 'draft' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
+                           'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'">
+                {{ campaign.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Feed -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme border border-gray-200 dark:border-gray-700">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Recent Activity</h2>
+          <a href="#" class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 text-sm font-medium">View All</a>
+        </div>
+      </div>
+      <div class="p-6">
+        <div class="space-y-4">
+          <div class="flex items-start gap-4" *ngFor="let activity of recentActivity()">
+            <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
+              <span class="text-blue-600 dark:text-blue-400">{{ getActivityIcon(activity.type) }}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="font-medium text-gray-900 dark:text-white">{{ activity.title }}</h4>
+              <p class="text-sm text-gray-600 dark:text-gray-400 mb-1">{{ activity.description }}</p>
+              <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                <span>{{ formatTimeAgo(activity.timestamp) }}</span>
+                <span *ngIf="activity.amount" class="font-medium text-green-600 dark:text-green-400">
+                  {{ formatCurrency(activity.amount) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme border border-gray-200 dark:border-gray-700">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Quick Actions</h2>
+      </div>
+      <div class="p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <a routerLink="/create-campaign" class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
+            <div class="text-2xl">🚀</div>
+            <div>
+              <h3 class="font-medium text-gray-900 dark:text-white">Create Campaign</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Start a new crowdfunding campaign</p>
+            </div>
+          </a>
+          <a routerLink="/explore" class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
+            <div class="text-2xl">🔍</div>
+            <div>
+              <h3 class="font-medium text-gray-900 dark:text-white">Explore Projects</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Discover trending campaigns</p>
+            </div>
+          </a>
+          <a routerLink="/dashboard" class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
+            <div class="text-2xl">📊</div>
+            <div>
+              <h3 class="font-medium text-gray-900 dark:text-white">View Analytics</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Detailed performance insights</p>
+            </div>
+          </a>
+          <a routerLink="/profile" class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors duration-200">
+            <div class="text-2xl">⚙️</div>
+            <div>
+              <h3 class="font-medium text-gray-900 dark:text-white">Account Settings</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400">Manage your profile and preferences</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Chart Placeholder -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme border border-gray-200 dark:border-gray-700 lg:col-span-2 xl:col-span-1">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-white">Performance Overview</h2>
+          <select class="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option>Last 7 days</option>
+            <option>Last 30 days</option>
+            <option>Last 3 months</option>
+          </select>
+        </div>
+      </div>
+      <div class="p-6">
+        <div class="text-center">
+          <div class="text-6xl mb-4">📈</div>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Growth Chart</h3>
+          <p class="text-gray-600 dark:text-gray-400 mb-6">Interactive chart showing campaign performance over time</p>
+          <div class="flex items-end justify-center gap-2 h-32">
+            <div class="w-8 bg-blue-200 dark:bg-blue-800 rounded-t" style="height: 40%"></div>
+            <div class="w-8 bg-blue-300 dark:bg-blue-700 rounded-t" style="height: 60%"></div>
+            <div class="w-8 bg-blue-400 dark:bg-blue-600 rounded-t" style="height: 80%"></div>
+            <div class="w-8 bg-blue-300 dark:bg-blue-700 rounded-t" style="height: 55%"></div>
+            <div class="w-8 bg-blue-400 dark:bg-blue-600 rounded-t" style="height: 70%"></div>
+            <div class="w-8 bg-blue-500 dark:bg-blue-500 rounded-t" style="height: 90%"></div>
+            <div class="w-8 bg-blue-400 dark:bg-blue-600 rounded-t" style="height: 75%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,133 @@
+// Global Theme Variables
+// This file defines CSS custom properties for light and dark themes
+
+:root {
+  // Light Theme Variables
+  --primary-bg: #ffffff;
+  --secondary-bg: #f9fafb;
+  --tertiary-bg: #f3f4f6;
+  --card-bg: #ffffff;
+  --border-color: #e5e7eb;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+
+  // Text Colors
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-inverse: #ffffff;
+
+  // Button Colors
+  --btn-primary-bg: #2563eb;
+  --btn-primary-hover: #1d4ed8;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #f3f4f6;
+  --btn-secondary-hover: #e5e7eb;
+  --btn-secondary-text: #374151;
+  --btn-secondary-border: #d1d5db;
+
+  // Accent Colors
+  --accent-blue: #2563eb;
+  --accent-green: #10b981;
+  --accent-purple: #8b5cf6;
+  --accent-orange: #f59e0b;
+  --accent-red: #ef4444;
+
+  // Status Colors
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --info-color: #2563eb;
+
+  // Navigation
+  --nav-bg: #ffffff;
+  --nav-text: #374151;
+  --nav-hover: #f3f4f6;
+  --nav-active: #2563eb;
+
+  // Form Elements
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-focus-border: #2563eb;
+  --input-text: #374151;
+  --input-placeholder: #9ca3af;
+
+  // Transitions
+  --transition-fast: 0.15s ease-in-out;
+  --transition-normal: 0.3s ease-in-out;
+}
+
+// Dark Theme Variables
+[data-theme="dark"] {
+  --primary-bg: #111827;
+  --secondary-bg: #1f2937;
+  --tertiary-bg: #374151;
+  --card-bg: #1f2937;
+  --border-color: #374151;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+
+  // Text Colors
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-inverse: #111827;
+
+  // Button Colors
+  --btn-primary-bg: #3b82f6;
+  --btn-primary-hover: #2563eb;
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: #374151;
+  --btn-secondary-hover: #4b5563;
+  --btn-secondary-text: #f9fafb;
+  --btn-secondary-border: #4b5563;
+
+  // Accent Colors (slightly brighter for dark mode)
+  --accent-blue: #3b82f6;
+  --accent-green: #34d399;
+  --accent-purple: #a78bfa;
+  --accent-orange: #fbbf24;
+  --accent-red: #f87171;
+
+  // Status Colors
+  --success-color: #34d399;
+  --warning-color: #fbbf24;
+  --error-color: #f87171;
+  --info-color: #3b82f6;
+
+  // Navigation
+  --nav-bg: #1f2937;
+  --nav-text: #f9fafb;
+  --nav-hover: #374151;
+  --nav-active: #3b82f6;
+
+  // Form Elements
+  --input-bg: #374151;
+  --input-border: #4b5563;
+  --input-focus-border: #3b82f6;
+  --input-text: #f9fafb;
+  --input-placeholder: #9ca3af;
+}
+
+// Utility Classes for Theme Variables
+.theme-bg-primary { background-color: var(--primary-bg); }
+.theme-bg-secondary { background-color: var(--secondary-bg); }
+.theme-bg-tertiary { background-color: var(--tertiary-bg); }
+.theme-bg-card { background-color: var(--card-bg); }
+
+.theme-text-primary { color: var(--text-primary); }
+.theme-text-secondary { color: var(--text-secondary); }
+.theme-text-tertiary { color: var(--text-tertiary); }
+.theme-text-inverse { color: var(--text-inverse); }
+
+// Accent Text Colors
+.theme-text-accent { color: var(--accent-blue); }
+.theme-text-success { color: var(--success-color); }
+.theme-text-warning { color: var(--warning-color); }
+.theme-text-error { color: var(--error-color); }
+.theme-text-info { color: var(--info-color); }
+.theme-text-purple { color: var(--accent-purple); }
+
+.theme-border { border-color: var(--border-color); }
+.theme-shadow { box-shadow: 0 1px 3px 0 var(--shadow-color), 0 1px 2px 0 var(--shadow-color); }
+
+// Keep minimal theme variables for any remaining custom CSS
+// Most styling is now handled by Tailwind CSS

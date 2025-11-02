@@ -1,0 +1,26 @@
+@import 'theme.scss';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global layout styles */
+.main-content {
+  padding-top: 4rem; /* 64px - height of the navbar */
+  min-height: calc(100vh - 4rem); /* Account for navbar height */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure footer sticks to bottom */
+app-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure navbar backdrop works on all browsers */
+nav {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
