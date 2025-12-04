@@ -1,69 +1,199 @@
-    <div class="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-4xl mx-auto">
-        <div class="mb-8">
-          <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Create Campaign</h1>
-          <p class="text-xl text-gray-600 dark:text-gray-300">Launch your next marketing campaign</p>
+        <div class="text-center mb-10">
+          <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full mb-4">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+          </div>
+          <h1 class="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">Create Campaign</h1>
+          <p class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">Transform your ideas into reality with our powerful crowdfunding platform</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-theme p-8 border border-gray-200 dark:border-gray-700">
-          <form class="space-y-6">
-            <div>
-              <label for="campaign-name" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                Campaign Name
+        <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-100/50 dark:border-gray-700/50 overflow-hidden">
+          <form class="p-8 space-y-8">
+            <div class="group">
+              <label for="title" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                Campaign Title
               </label>
-              <input type="text" id="campaign-name" name="campaign-name"
-                     class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                     placeholder="Enter campaign name">
+              <input type="text" id="title" name="title"
+                     class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-700 transition-all duration-200 shadow-sm hover:shadow-md"
+                     placeholder="Enter your compelling campaign title">
             </div>
 
-            <div>
-              <label for="description" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                Description
+            <div class="group">
+              <label for="description" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center">
+                <svg class="w-4 h-4 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Campaign Description
               </label>
               <textarea id="description" name="description" rows="4"
-                        class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Describe your campaign"></textarea>
+                        class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-700 transition-all duration-200 shadow-sm hover:shadow-md resize-none"
+                        placeholder="Tell your story and explain why people should support your campaign"></textarea>
+            </div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="group">
+                <label for="img" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center">
+                  <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                  Campaign Image
+                </label>
+                <div class="relative">
+                  <input type="file" id="img" name="img" accept="image/*"
+                         class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 dark:file:bg-green-900/50 dark:file:text-green-300 hover:file:bg-green-100 dark:hover:file:bg-green-800/50 focus:ring-2 focus:ring-green-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-700 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
+                         (change)="previewFile($event, 'img-preview', 'image')">
+                  <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div id="img-preview" class="mt-3 hidden">
+                  <div class="relative rounded-xl overflow-hidden shadow-md border border-gray-200 dark:border-gray-600">
+                    <img src="" alt="Image preview" class="w-full h-40 object-cover">
+                    <div class="absolute top-2 right-2">
+                      <button type="button" (click)="removePreview('img-preview', 'img')" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                      </button>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-2">
+                      <p class="text-white text-xs font-medium">Image Preview</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="group">
+                <label for="pdf" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center">
+                  <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  Campaign PDF
+                </label>
+                <div class="relative">
+                  <input type="file" id="pdf" name="pdf" accept=".pdf"
+                         class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 dark:file:bg-red-900/50 dark:file:text-red-300 hover:file:bg-red-100 dark:hover:file:bg-red-800/50 focus:ring-2 focus:ring-red-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-700 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
+                         (change)="previewFile($event, 'pdf-preview', 'pdf')">
+                  <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                  </div>
+                </div>
+                <div id="pdf-preview" class="mt-3 hidden">
+                  <div class="relative rounded-xl overflow-hidden shadow-md border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700">
+                    <div class="p-4 flex items-center justify-center h-40">
+                      <div class="text-center">
+                        <svg class="w-12 h-12 text-red-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-sm font-medium text-gray-700 dark:text-gray-200">PDF Document Ready</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Click to view in new tab</p>
+                      </div>
+                    </div>
+                    <iframe src="" class="hidden w-full h-40"></iframe>
+                    <div class="absolute top-2 right-2">
+                      <button type="button" (click)="removePreview('pdf-preview', 'pdf')" class="bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                      </button>
+                    </div>
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-2">
+                      <p class="text-white text-xs font-medium">PDF Preview</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="budget" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                  Budget
+                <label for="min-fund" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                  Minimum Funding
                 </label>
-                <input type="number" id="budget" name="budget"
+                <input type="number" id="min-fund" name="min-fund" step="0.01" min="0"
                        class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       placeholder="Enter budget">
+                       placeholder="Enter minimum funding amount">
               </div>
               <div>
-                <label for="duration" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                  Duration (days)
+                <label for="max-fund" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                  Maximum Funding
                 </label>
-                <input type="number" id="duration" name="duration"
+                <input type="number" id="max-fund" name="max-fund" step="0.01" min="0"
                        class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       placeholder="Enter duration">
+                       placeholder="Enter maximum funding amount">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label for="funding-type" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                  Funding Type
+                </label>
+                <select id="funding-type" name="funding-type"
+                        class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        (change)="updateFundingTypeText($event)">
+                  <option value="">Select funding type</option>
+                  <option value="fixed">All Or Nothing</option>
+                  <option value="flexible">Flexible</option>
+                </select>
+                <div id="funding-type-text" class="mt-2 text-xs text-gray-600 dark:text-gray-400 hidden">
+                  <span id="funding-message"></span>
+                </div>
+              </div>
+              <div>
+                <label for="deadline" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                  Deadline
+                </label>
+                <input type="date" id="deadline" name="deadline"
+                       class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               </div>
             </div>
 
             <div>
-              <label for="target-audience" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
-                Target Audience
+              <label for="categories" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
+                Category
               </label>
-              <select id="target-audience" name="target-audience"
+              <select id="categories" name="categories"
                       class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                <option value="">Select target audience</option>
-                <option value="young-adults">Young Adults (18-25)</option>
-                <option value="professionals">Professionals (25-40)</option>
-                <option value="families">Families</option>
-                <option value="seniors">Seniors (60+)</option>
+                <option value="">Select category</option>
+                <option value="technology">Technology</option>
+                <option value="art">Art & Design</option>
+                <option value="music">Music</option>
+                <option value="film">Film & Video</option>
+                <option value="games">Games</option>
+                <option value="food">Food & Beverage</option>
+                <option value="fashion">Fashion</option>
+                <option value="publishing">Publishing</option>
+                <option value="health">Health & Wellness</option>
+                <option value="education">Education</option>
+                <option value="environment">Environment</option>
+                <option value="social">Social Impact</option>
+                <option value="sports">Sports</option>
+                <option value="travel">Travel</option>
+                <option value="other">Other</option>
               </select>
             </div>
 
-            <div class="flex justify-end space-x-4">
-              <button type="button" class="bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
+            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+              <button type="button" class="px-6 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all duration-200 shadow-sm hover:shadow-md">
                 Cancel
               </button>
-              <button type="submit" class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-                Create Campaign
+              <button type="submit" class="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                <span class="flex items-center">
+                  Create Campaign
+                  <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                  </svg>
+                </span>
               </button>
             </div>
           </form>
