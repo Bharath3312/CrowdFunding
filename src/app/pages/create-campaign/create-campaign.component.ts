@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormGroup,FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { IpfsServciesService } from '../../services/ipfs.servcies.service';
 import { ContractService } from '../../services/contract.service';
+import { signal } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+
 @Component({
   selector: 'app-create-campaign',
   standalone: true,
@@ -11,8 +14,8 @@ import { ContractService } from '../../services/contract.service';
   styleUrls: ['./create-campaign.component.css']
 })
 export class CreateCampaignComponent {
-
- constructor(private ipfsService : IpfsServciesService,private contractServices :  ContractService){}
+loading = signal(false);
+ constructor(private ipfsService : IpfsServciesService,private contractServices :  ContractService,private router : Router){}
 
   myForm = new FormGroup({
     campaignTitle: new FormControl('',Validators.required),
@@ -26,7 +29,11 @@ export class CreateCampaignComponent {
     campaignCategory: new FormControl('',Validators.required),
   })
    ngOnInit(): void {
-    // this.uploadIpfs()
+    
+  }
+   ngOnDestroy() {
+    this.loading.set(false);
+    console.log("Component destroyed");
   }
   //show user selected image/pdf preview
   previewFile(event: Event, previewId: string, fileType: 'image' | 'pdf'): void {
@@ -117,7 +124,6 @@ export class CreateCampaignComponent {
     }
   }
 
-
   async createCampaign(){
     console.log("createCampaign");
     
@@ -152,7 +158,11 @@ export class CreateCampaignComponent {
       console.log("Form is invalid",this.myForm.errors ,this.myForm.value , this.myForm.valid)
     }
   }
-
+  
+  cancelForm(){
+    console.log("cancel form");
+    this.router.navigate(['/']);
+  }
   // async uploadIpfs(){
   //    try {
       
