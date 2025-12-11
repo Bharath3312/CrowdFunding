@@ -58,8 +58,8 @@
         <!-- Connect Button -->
         <button data-wallet-button
           class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-          (click)="walletState.isConnected ? disconnetWallet() :connectWallet()"
           *ngIf="walletServices.walletState$Observable| async as walletState"
+          (click)="walletState.isConnected ? disconnetWallet() :connectWallet()"
           >
           {{walletState.isConnected ?(walletState.address | slice :0:6)+'...'+(walletState.address | slice : -4) : 'connect'}}
         </button>

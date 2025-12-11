@@ -17,7 +17,7 @@ export class EvmWalletServices {
     isLoading: false,
   }
 
-  private walletState$ =   new BehaviorSubject<WalletState>(this.defaultState);
+  public walletState$ =   new BehaviorSubject<WalletState>(this.defaultState);
   private wallets: WalletProvider[] = [];
 
   constructor() {

@@ -11,7 +11,7 @@
         </div>
 
         <div class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-100/50 dark:border-gray-700/50 overflow-hidden">
-          <form class="p-8 space-y-8">
+          <form [formGroup]="myForm" class="p-8 space-y-8" (ngSubmit)="createCampaign()">
             <div class="group">
               <label for="title" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center">
                 <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -21,7 +21,7 @@
               </label>
               <input type="text" id="title" name="title"
                      class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-700 transition-all duration-200 shadow-sm hover:shadow-md"
-                     placeholder="Enter your compelling campaign title">
+                     placeholder="Enter your compelling campaign title" formControlName="campaignTitle">
             </div>
 
             <div class="group">
@@ -33,10 +33,10 @@
               </label>
               <textarea id="description" name="description" rows="4"
                         class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-purple-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-700 transition-all duration-200 shadow-sm hover:shadow-md resize-none"
-                        placeholder="Tell your story and explain why people should support your campaign"></textarea>
+                        placeholder="Tell your story and explain why people should support your campaign" formControlName="campaignDescription" ></textarea>
             </div>
 
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="group">
                 <label for="img" class="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center">
                   <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +78,7 @@
                   Campaign PDF
                 </label>
                 <div class="relative">
-                  <input type="file" id="pdf" name="pdf" accept=".pdf"
+                  <input type="file" id="pdf" name="pdf" accept=".pdf"  
                          class="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600 rounded-xl text-gray-900 dark:text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 dark:file:bg-red-900/50 dark:file:text-red-300 hover:file:bg-red-100 dark:hover:file:bg-red-800/50 focus:ring-2 focus:ring-red-500 focus:border-transparent focus:bg-white dark:focus:bg-gray-700 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
                          (change)="previewFile($event, 'pdf-preview', 'pdf')">
                   <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -121,7 +121,7 @@
                 </label>
                 <input type="number" id="min-fund" name="min-fund" step="0.01" min="0"
                        class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       placeholder="Enter minimum funding amount">
+                       placeholder="Enter minimum funding amount" formControlName="campaignMinimumInvestment">
               </div>
               <div>
                 <label for="max-fund" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
@@ -129,7 +129,7 @@
                 </label>
                 <input type="number" id="max-fund" name="max-fund" step="0.01" min="0"
                        class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                       placeholder="Enter maximum funding amount">
+                       placeholder="Enter maximum funding amount" formControlName="campaignMaximumInvestment">
               </div>
             </div>
 
@@ -138,12 +138,12 @@
                 <label for="funding-type" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
                   Funding Type
                 </label>
-                <select id="funding-type" name="funding-type"
+                <select id="funding-type" name="funding-type" formControlName="campaignFundingType"
                         class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         (change)="updateFundingTypeText($event)">
                   <option value="">Select funding type</option>
-                  <option value="fixed">All Or Nothing</option>
-                  <option value="flexible">Flexible</option>
+                  <option value="0">All Or Nothing</option>
+                  <option value="1">Flexible</option>
                 </select>
                 <div id="funding-type-text" class="mt-2 text-xs text-gray-600 dark:text-gray-400 hidden">
                   <span id="funding-message"></span>
@@ -153,7 +153,7 @@
                 <label for="deadline" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
                   Deadline
                 </label>
-                <input type="date" id="deadline" name="deadline"
+                <input type="date" id="deadline" name="deadline" formControlName="campaignDeadline"
                        class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
               </div>
             </div>
@@ -162,7 +162,7 @@
               <label for="categories" class="block text-sm font-medium text-gray-900 dark:text-white mb-2">
                 Category
               </label>
-              <select id="categories" name="categories"
+              <select id="categories" name="categories" formControlName="campaignCategory"
                       class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 <option value="">Select category</option>
                 <option value="technology">Technology</option>
