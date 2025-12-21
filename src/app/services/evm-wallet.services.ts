@@ -25,7 +25,8 @@ export class EvmWalletServices {
     initWalletDiscovery((wallet) => {
       console.log(wallet.name,"wallets init");
       this.wallets.push(wallet);
-      if(wallet.name =="MetaMask"){
+     const preferredWallet = localStorage.getItem('preferredWallet');
+      if(preferredWallet == wallet.name){
           this.connect(wallet)
       }
     });
@@ -47,6 +48,7 @@ export class EvmWalletServices {
 
   async connect(wallet: WalletProvider): Promise<boolean> {
     try {
+      localStorage.setItem('preferredWallet', wallet.name);
       this.updateState({isLoading:true})
       const provider = new ethers.BrowserProvider(wallet.provider);
 
@@ -85,6 +87,19 @@ export class EvmWalletServices {
       console.log("disconnect metamask !!!!!!!!!!!");
       this.disconnect();
     });
+  }
+
+  async switchCain(chainId: number=31337): Promise<boolean> {
+    try {
+      await (this.walletState$.getValue().provider as any).request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0x' + chainId.toString(16) }],
+      });
+      return true;
+    } catch (err) {
+      console.error("Switch chain failed*****************", err);
+      return false;
+    }
   }
 
   disconnect() {

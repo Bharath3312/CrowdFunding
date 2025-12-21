@@ -5,6 +5,34 @@ import { IpfsServciesService } from '../../services/ipfs.servcies.service';
 import { ContractService } from '../../services/contract.service';
 import { signal } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
+import { AbstractControl, ValidationErrors } from '@angular/forms';
+
+import { environment } from '../../../environments/environment';
+import { ethers } from 'ethers';
+export function maxWords(max: number) {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) return null;
+
+    const words = control.value
+      // .trim()
+      // .split(/\s+/)
+      // .filter(Boolean);
+
+    return words.length > max
+      ? { maxWords: { required: max, actual: words.length } }
+      : null;
+  };
+}
+export function futureDateValidator(control: AbstractControl) {
+  if (!control.value) return null;
+
+  const selected = new Date(control.value);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+
+  return selected < tomorrow ? { invalidDeadline: true } : null;
+}
 
 @Component({
   selector: 'app-create-campaign',
@@ -15,16 +43,38 @@ import { Router, NavigationEnd } from '@angular/router';
 })
 export class CreateCampaignComponent {
 loading = signal(false);
+tomorrow = (() => {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.toISOString().split('T')[0];
+})();
+
+
+
  constructor(private ipfsService : IpfsServciesService,private contractServices :  ContractService,private router : Router){}
 
   myForm = new FormGroup({
-    campaignTitle: new FormControl('',Validators.required),
-    campaignDescription: new FormControl('',Validators.required), 
+    campaignTitle: new FormControl('', {
+    nonNullable: true,
+    validators: [
+      Validators.required,
+      maxWords(30)   // ✅ allow only 150 words
+    ]
+  }),
+    campaignDescription: new FormControl('', {
+    nonNullable: true,
+    validators: [
+      Validators.required,
+      maxWords(200)   // ✅ allow only 150 words
+    ]
+  }),
     campaignImage: new FormControl(null as File | null,Validators.required),
     campaignDocument: new FormControl(null as File | null,Validators.required),
     campaignMinimumInvestment: new FormControl('',Validators.required),
     campaignMaximumInvestment: new FormControl('',Validators.required),
-    campaignDeadline: new FormControl('',Validators.required),
+    campaignDeadline: new FormControl('', {
+      validators: [Validators.required, futureDateValidator]
+    }),
     campaignFundingType: new FormControl('',Validators.required),
     campaignCategory: new FormControl('',Validators.required),
   })
@@ -126,7 +176,7 @@ loading = signal(false);
 
   async createCampaign(){
     console.log("createCampaign");
-    
+    this.loading.set(true);
     if(this.myForm.valid){
             console.log(this.myForm.value);
       if(!this.myForm.value.campaignImage ){
@@ -137,12 +187,12 @@ loading = signal(false);
         console.log("No file selected for upload");
         return;
       }
-      const getImgIpfsHash = await this.ipfsService.uploadToIpfs(this.myForm.value.campaignImage);
+      const getImgIpfsHash = {cid:"bafkreih226sg3zddtozlvntteytgfogoc7jwob52q35aho273j3kqrphuy" , status : true ,error:""}  //await this.ipfsService.uploadToIpfs(this.myForm.value.campaignImage);
       if(!getImgIpfsHash.status){
         console.log("Image upload to IPFS failed", getImgIpfsHash.error);
         return;
       }
-      const getPdfIpfsHash = await this.ipfsService.uploadToIpfs(this.myForm.value.campaignDocument);
+      const getPdfIpfsHash = {cid:"bafkreidll3t4hgmw4sbefy74zgl7mhbkamamqumovxvuwsuy5f3xyuiqye" , status : true ,error:""} ///await this.ipfsService.uploadToIpfs(this.myForm.value.campaignDocument);
       if(!getPdfIpfsHash.status){
         console.log("PDF upload to IPFS failed", getPdfIpfsHash.error);
         return;
@@ -153,6 +203,25 @@ loading = signal(false);
         campaignDocument : getPdfIpfsHash.cid
       }
       console.log(payloadData);
+      this.contractServices.createCampaign({
+        title: payloadData.campaignTitle,
+        description: payloadData.campaignDescription,
+        imgUrl: environment.ipfsPubUrl + payloadData.campaignImage,
+        pdfUrl: environment.ipfsPubUrl + payloadData.campaignDocument,
+        minAmount: ethers.parseEther(payloadData.campaignMinimumInvestment!.toString()),
+        maxAmount: ethers.parseEther(payloadData.campaignMaximumInvestment!.toString()),
+        fundingType: payloadData.campaignFundingType,
+        category: payloadData.campaignCategory,
+        deadline: Math.floor(new Date(payloadData.campaignDeadline!).getTime() / 1000)
+      }).then((res)=>{
+        console.log("Campaign created successfully",res);
+        this.loading.set(false);
+        this.router.navigate(['/']);
+      }
+      ).catch((err)=>{
+        console.log("Error creating campaign",err);
+        this.loading.set(false);
+      });
       
     }else{
       console.log("Form is invalid",this.myForm.errors ,this.myForm.value , this.myForm.valid)

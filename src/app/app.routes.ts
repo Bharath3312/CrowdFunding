@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { connectWalletGuard } from './guard/connect-wallet.guard';
 
 export const routes: Routes = [
   {
@@ -10,7 +11,8 @@ export const routes: Routes = [
   //   loadComponent: () => import('./pages/explore/explore.component').then(m => m.ExploreComponent)
   // },
   {
-    path: 'campaign/:id',
+    path: 'campaign',
+    canActivate: [connectWalletGuard],
     loadComponent: () => import('./pages/campaign/campaign.component').then(m => m.CampaignComponent)
   },
   // {
@@ -19,10 +21,12 @@ export const routes: Routes = [
   // },
   {
     path: 'dashboard',
+    canActivate: [connectWalletGuard],
     loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent)
   },
   {
     path: 'create-campaign',
+    canActivate: [connectWalletGuard],
     loadComponent: () => import('./pages/create-campaign/create-campaign.component').then(m => m.CreateCampaignComponent)
   },
   {
@@ -31,6 +35,17 @@ export const routes: Routes = [
   },
   {
     path: 'explorer',
+    canActivate: [connectWalletGuard],
     loadComponent: () => import('./pages/explore-campaign/explore-campaign.component').then(m => m.ExploreCampaignComponent)
+  },
+
+  {
+    path :'connect-wallet',
+    loadComponent: () => import('./pages/connect-wallet/connect-wallet.component').then(m => m.ConnectWalletComponent)
+  },
+
+  {
+    path: '**',
+    loadComponent: () => import('./pages/not-found-page/not-found-page.component').then(m => m.NotFoundPageComponent)
   }
 ];

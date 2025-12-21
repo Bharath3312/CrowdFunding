@@ -2,5 +2,7 @@
 export const environment = {
     ipfsUploadUrl: 'https://uploads.pinata.cloud/v3/files',
     ipfsJwt: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI2ZDk5M2QwZC01OTM2LTQ0ZWItYTE5YS1jY2YyY2Y5ZjIwYWMiLCJlbWFpbCI6ImJoYXJhdGgwNC5kZXZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjA2MWUxYmRmZGFhNDU4NmUyYzQxIiwic2NvcGVkS2V5U2VjcmV0IjoiNTYwZThjMmUyMDkxYzBhMThiNmYwNzU0NDQyYzJhMjMwYzA1OTFlYjY4Mjk1Yzk2ZWM2MjMyNzRjNTE3NzEwMCIsImV4cCI6MTc5NjU2NzkzM30.V0THS0bEWywkq3l27dsXjjTsB3cvCEZ3aRRlVM7cQ0s',
-    ipfsPubUrl: 'https://ipfs.io/ipfs/'
-}
+    ipfsPubUrl: 'https://ipfs.io/ipfs/',
+    campaignFactoryAddress :"0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    supportedWallets : ['metamask'],
+}   
