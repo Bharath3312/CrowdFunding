@@ -1,25 +1,29 @@
+/* ✅ All imports must come first */
+
+/* Your custom theme file */
 @import 'theme.scss';
 
+/* Tailwind layers */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ✅ After all imports, you can write custom CSS */
+
 /* Global layout styles */
 .main-content {
   padding-top: 4rem; /* 64px - height of the navbar */
-  min-height: calc(100vh - 4rem); /* Account for navbar height */
+  min-height: calc(100vh - 4rem);
   display: flex;
   flex-direction: column;
 }
 
-/* Ensure footer sticks to bottom */
 app-root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Ensure navbar backdrop works on all browsers */
 nav {
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);

@@ -55,13 +55,39 @@
 
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-3">
-            <button class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200" >
-              Donate
-            </button>
-            <button class="bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 px-6 py-3 rounded-lg font-semibold transition-colors duration-200" (click)="shareCampaign()">
+              <button class="bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 px-6 py-3 rounded-lg font-semibold transition-colors duration-200" (click)="shareCampaign()">
               Share
             </button>
+            @if (campaign.status === 0 && (contractService.currentWalletState?.address != campaign.owner || campaign.fundingType === 0)) {
+                <button  class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200" 
+                  (click)="doFunding(fundInput.value)"
+                >
+                  Fund
+                </button>
+              <input
+                #fundInput
+                type="number"
+                [value]="campaign.minAmount"
+                placeholder="Amount"
+                [min]="campaign.minAmount"
+                [max]="campaign.goal - campaign.raised"
+                class="w-full px-4 py-3 rounded-lg
+                      bg-white dark:bg-gray-700
+                      border border-gray-300 dark:border-gray-600
+                      text-gray-900 dark:text-white
+                      focus:ring-2 focus:ring-blue-500"
+              />
+            }
           </div>
+          <!-- Allowed Range Info -->
+          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            Allowed range:
+            <span class="font-medium text-green-600">{{ campaign.minAmount }} ETH</span>
+            →
+            <span class="font-medium text-blue-600">{{ campaign.goal - campaign.raised }} ETH</span>
+          </p>
+
+
         </div>
       </div>
     </div>
@@ -223,3 +249,7 @@
     </div>
   </div>
 </div>
+<!-- <p-toast></p-toast> -->
+ <p>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quod ab odit odio molestiae ipsum! Aspernatur laborum eius iure quisquam quis veniam nobis esse distinctio qui ex, illo eos saepe sint!</p>
+<p-toast position="top-right"></p-toast>
+    <p-button type="button" pRipple (click)="showSuccess()" label="Success" severity="success">button</p-button>

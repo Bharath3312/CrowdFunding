@@ -5,6 +5,10 @@ import { ThemeService } from '../../services/theme.service';
 import { ContractService } from '../../services/contract.service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ethers } from 'ethers';
+import { ToastModule } from 'primeng/toast'; 
+import { MessageService } from 'primeng/api';
+import { Ripple } from 'primeng/ripple';
+import { ButtonModule } from 'primeng/button';
 
 interface Campaign {
   id: number;
@@ -13,21 +17,15 @@ interface Campaign {
   // fullDescription: string;
   image: string;
   pdf : string;
+  owner : string;
   category: string;
   raised: number;
   goal: number;
+  minAmount: number;
   backers: number;
   daysLeft: number;
-  // creator: {
-  //   name: string;
-  //   avatar: string;
-  //   bio: string;
-  //   location: string;
-  //   projects: number;
-  // };
-  // rewards: Reward[];
-  // updates: Update[];
-  // faqs: FAQ[];
+  fundingType: number;
+  status: number;
 }
 
 interface Reward {
@@ -57,7 +55,8 @@ interface FAQ {
 @Component({
   selector: 'app-campaign',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,ToastModule,Ripple,ButtonModule],
+  providers: [MessageService],
   templateUrl: './campaign.component.html',
   styleUrls: ['./campaign.component.css']
 })
@@ -65,12 +64,11 @@ export class CampaignComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private themeService = inject(ThemeService);
-  private contractService = inject(ContractService);
+  public contractService = inject(ContractService);
   private sanitizer = inject(DomSanitizer);
   readonly currentTheme = this.themeService.theme;
-// public pdfUrl:string = "https://ipfs.io/ipfs/bafkreigy2s4bfabvw22e4arj777wprtbvmb65oc5z3fzufe6za3bkchyca"
-
-  pdfUrl!: SafeResourceUrl;
+  constructor(private messageService: MessageService) {}
+// private messageService = inject(MessageService);
   isPdfLoading = signal<boolean>(true);
   // Campaign data signal
   readonly campaign = signal<Campaign | null>(null);
@@ -78,27 +76,23 @@ export class CampaignComponent implements OnInit {
   // Active tab signal
   readonly activeTab = signal<'PDF' | 'updates' | 'faqs'>('PDF');
 
-  // Sample campaign data
   private readonly sampleCampaigns: Campaign | null = null;
   async ngOnInit() {
-    // const id =  1 //Number(this.route.snapshot.paramMap.get('id'));
-    // const campaign = this.sampleCampaigns.find(c => c.id === id);
 
-    // if (campaign) {
-    //   this.campaign.set(campaign);
-    // } else {
-    //   // Handle campaign not found
-    //   this.router.navigate(['/explore']);
-    // }
     this.fetchCampaignData();
    
   }
+   showSuccess() {
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Message Content' });
+    }
 
   async fetchCampaignData() {
     const campaignAddress = this.route.snapshot.queryParamMap.get('id') ?? null;
     if (campaignAddress) {
       console.log('Campaign address from query params:', campaignAddress);
       const campaignData = await  this.contractService.getCampaignData(campaignAddress);
+      console.log(campaignData,"campaignDatacampaignDatacampaignData");
+      
       if (campaignData){
         const campaign: Campaign = {
           id: 0,
@@ -106,21 +100,23 @@ export class CampaignComponent implements OnInit {
           description: campaignData.description,
           image: campaignData.imageUrl,
           pdf : campaignData.pdfUrl,
+          owner : campaignData.owner,
           raised : parseInt(ethers.formatEther(campaignData.totalInvested)),
           goal : parseInt(ethers.formatEther(campaignData.maxAmount)),
+          minAmount : parseInt(ethers.formatEther(campaignData.minAmount)),
           backers : Number(campaignData.totalInvestors),
           category : campaignData.category.toUpperCase(),
           daysLeft : this.calculateDaysLeft(Number(campaignData.deadline)),
+          fundingType : Number(campaignData.fundingType),
+          status :Number(campaignData.status)
         }
         this.isPdfLoading.set(false);
-        console.log(campaignData.pdfUrl,"campaignData by address", this.isPdfLoading);
+        console.log(campaign,"need campaignDAta");
         this.campaign.set(campaign);
-          // this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(campaignData.pdfUrl);
       }else {
         this.router.navigate(['**']);
       }
     } else {
-      // Handle missing address
       console.log('No campaign address provided in query params.');
       this.router.navigate(['**']);
     }
@@ -135,7 +131,35 @@ export class CampaignComponent implements OnInit {
   getSafePdfUrl(pdf: string) {
   return this.sanitizer.bypassSecurityTrustResourceUrl(pdf);
 }
+// onAmountInput(input: HTMLInputElement) {
+//   let value = Number(input.value);
 
+//   if (isNaN(value)) {
+//     input.value = '';
+//     return;
+//   }
+//   const campaign = this.campaign();
+//   if (!campaign) return;
+//   if (value < campaign?.minAmount) {
+//     input.value = campaign?.minAmount.toString();
+//   }
+
+//   if (value > campaign?.goal) {
+//     input.value = (campaign?.goal - campaign?.raised).toString();
+//   }
+// }
+isFundingDisabled(amount: string): boolean {
+  const value = Number(amount);
+
+  if (isNaN(value)) return true;
+const campaign = this.campaign();
+if (!campaign) return true;
+const remainingAmount = campaign.goal - campaign.raised;
+  return (
+    value < campaign.minAmount ||
+    value > remainingAmount
+  );
+}
   // Methods
   setActiveTab(tab: 'PDF' | 'updates' | 'faqs') {
     this.activeTab.set(tab);
@@ -181,6 +205,25 @@ export class CampaignComponent implements OnInit {
   goBack() {
     this.router.navigate(['/explorer']);
   }
+
+  doFunding(amt: string) {
+    const value = Number(amt);
+    console.log(value,"amountamountamount");
+    const campaign = this.campaign();
+    if (!campaign) return ;
+    const remainingAmount = campaign.goal - campaign.raised;
+      
+     if( value < campaign.minAmount || value > remainingAmount){
+      console.log("condi true");
+      
+// this.messageService.add({severity:'success', summary:'Success', detail:'Wallet connected!'});    
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Message Content' });
+
+     return;
+    }
+      
+  }
+
   ngDestroy() {
     localStorage.removeItem('selectedCampaign');
   }

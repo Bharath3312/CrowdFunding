@@ -192,7 +192,7 @@ tomorrow = (() => {
         console.log("Image upload to IPFS failed", getImgIpfsHash.error);
         return;
       }
-      const getPdfIpfsHash = {cid:"bafkreidll3t4hgmw4sbefy74zgl7mhbkamamqumovxvuwsuy5f3xyuiqye" , status : true ,error:""} ///await this.ipfsService.uploadToIpfs(this.myForm.value.campaignDocument);
+      const getPdfIpfsHash = {cid:"bafkreigy2s4bfabvw22e4arj777wprtbvmb65oc5z3fzufe6za3bkchyca" , status : true ,error:""} ///await this.ipfsService.uploadToIpfs(this.myForm.value.campaignDocument);
       if(!getPdfIpfsHash.status){
         console.log("PDF upload to IPFS failed", getPdfIpfsHash.error);
         return;
