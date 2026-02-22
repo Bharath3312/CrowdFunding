@@ -17,6 +17,7 @@ interface Campaign {
   backers: number;
   daysLeft: number;
   creator: string;
+  fundingType : number
 }
 // interface Campaign {
 //   id: number;
@@ -63,6 +64,8 @@ export class ExploreCampaignComponent {
       const mappedCampaigns: Campaign[] = [];
       for(let el of campaignLists){
           const data = await this.contractService.getCampaignData(el);
+          console.log(data,"data",data.totalInvestors,"data.totalInvestors");
+          
           const campaignData = {
             id: mappedCampaigns.length, // or index
             address : el,
@@ -72,7 +75,7 @@ export class ExploreCampaignComponent {
             pdf : data.pdfUrl,
             raised :parseInt(ethers.formatEther(data.totalInvested)),
             goal :parseInt(ethers.formatEther(data.maxAmount)),
-            backers : Number(data.totalInvestors),
+            backers : data.totalInvestors.length ?? 0,
             daysLeft : this.calculateDaysLeft(Number(data.deadline)),
             minmumInvestment : Number(data.minAmount),
             maximumInvestment : Number(data.maxAmount),

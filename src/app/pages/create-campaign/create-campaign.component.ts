@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormGroup,FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
 import { IpfsServciesService } from '../../services/ipfs.servcies.service';
@@ -9,6 +9,12 @@ import { AbstractControl, ValidationErrors } from '@angular/forms';
 
 import { environment } from '../../../environments/environment';
 import { ethers } from 'ethers';
+import { FirebaseService } from '../../services/firebase.service';
+import { EvmWalletServices } from '../../services/evm-wallet.services';
+import { WalletState } from '../../models/wallet-provider.model';
+import { ToastService } from '../../services/toast.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+
 export function maxWords(max: number) {
   return (control: AbstractControl): ValidationErrors | null => {
     if (!control.value) return null;
@@ -42,16 +48,40 @@ export function futureDateValidator(control: AbstractControl) {
   styleUrls: ['./create-campaign.component.css']
 })
 export class CreateCampaignComponent {
-loading = signal(false);
-tomorrow = (() => {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return d.toISOString().split('T')[0];
-})();
+  private ipfsService = inject(IpfsServciesService);
+  private contractServices = inject(ContractService);
+  private router = inject(Router);
+  private firebase = inject(FirebaseService);
+  private toast = inject(ToastService);
+  private walletServices = inject(EvmWalletServices)
 
+  loading = signal(false);
 
+  tomorrow = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split('T')[0];
+  })();
 
- constructor(private ipfsService : IpfsServciesService,private contractServices :  ContractService,private router : Router){}
+  walletState : WalletState  = this.walletServices.walletState$.getValue();
+
+  wallet$ = toSignal(
+    this.walletServices.walletState$Observable,
+    {initialValue : this.walletServices.walletState$.getValue()}
+  )
+
+ constructor( ){
+      effect(()=>{
+        const state = this.wallet$();
+        console.log("state change in create campagin component",state);
+        if(!state.isConnected){
+          this.toast.error('Error','Please connect your wallet to create a campaign');
+          this.router.navigate(['/']);
+        }else {
+          this.walletState = state;
+        }
+      })
+ }
 
   myForm = new FormGroup({
     campaignTitle: new FormControl('', {
@@ -61,7 +91,7 @@ tomorrow = (() => {
       maxWords(30)   // ✅ allow only 150 words
     ]
   }),
-    campaignDescription: new FormControl('', {
+    campaignDescription: new FormControl('Lorem ipsum dolor, sit amet consectetur adipisicing elit. Consequatur quibusdam labore nulla qui omnis maiores iusto, nobis porro totam voluptatem.', {
     nonNullable: true,
     validators: [
       Validators.required,
@@ -78,9 +108,7 @@ tomorrow = (() => {
     campaignFundingType: new FormControl('',Validators.required),
     campaignCategory: new FormControl('',Validators.required),
   })
-   ngOnInit(): void {
-    
-  }
+
    ngOnDestroy() {
     this.loading.set(false);
     console.log("Component destroyed");
@@ -213,10 +241,40 @@ tomorrow = (() => {
         fundingType: payloadData.campaignFundingType,
         category: payloadData.campaignCategory,
         deadline: Math.floor(new Date(payloadData.campaignDeadline!).getTime() / 1000)
-      }).then((res)=>{
-        console.log("Campaign created successfully",res);
+      }).then(async (addr)=>{
+        console.log("Campaign created successfully",addr);
         this.loading.set(false);
-        this.router.navigate(['/']);
+        // this.router.navigate(['/explorer']);
+        // return;
+        const uid = `${this.walletState.address}_${this.walletState.chainId}`;
+        console.log(uid,"uid for firebase");
+        const data = await this.firebase.getUserData(uid)
+        // .pipe(take(1))
+        // .subscribe((data)=>{
+          console.log(data,"userdata from fb after creating campaing");
+          if(!data) {
+            this.firebase.createUserData({
+                uid : uid,
+                walletAddress : this.walletState.address as string,
+                chainId : this.walletState.chainId as number,
+                totalRaised: 0,
+                totalBackers : 0,
+                totalSuccess : 0,
+                totalFailed : 0,
+                campaigns : [addr],
+                activeCampaigns : 1,
+                totalCampaign : 1
+             })
+          }else {
+            this.firebase.updateUserData(uid,{
+              totalCampaign : data['totalCampaign'] + 1,
+              activeCampaigns : data['activeCampaigns'] + 1,
+              campaigns : [...data['campaigns'] , addr]
+            })
+          }
+        // })
+       
+        this.router.navigate(['/explorer']);
       }
       ).catch((err)=>{
         console.log("Error creating campaign",err);

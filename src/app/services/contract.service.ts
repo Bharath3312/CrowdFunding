@@ -7,7 +7,6 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class ContractService {
-  currentWalletState: WalletState | null = null;
   private campaignFactoryAddress = environment.campaignFactoryAddress ;
 	private campaignFactoryAbi = [ 
 		{
@@ -135,337 +134,338 @@ export class ContractService {
 		}
 	];
 	private campaignAbi = [
-		{
-			"inputs": [
-				{
-					"internalType": "string",
-					"name": "_title",
-					"type": "string"
-				},
-				{
-					"internalType": "string",
-					"name": "_description",
-					"type": "string"
-				},
-				{
-					"internalType": "string",
-					"name": "_imgUrl",
-					"type": "string"
-				},
-				{
-					"internalType": "string",
-					"name": "_pdfUrl",
-					"type": "string"
-				},
-				{
-					"internalType": "uint256",
-					"name": "_minAmount",
-					"type": "uint256"
-				},
-				{
-					"internalType": "uint256",
-					"name": "_maxAmount",
-					"type": "uint256"
-				},
-				{
-					"internalType": "uint8",
-					"name": "_fundingType",
-					"type": "uint8"
-				},
-				{
-					"internalType": "string",
-					"name": "_category",
-					"type": "string"
-				},
-				{
-					"internalType": "uint256",
-					"name": "_deadline",
-					"type": "uint256"
-				},
-				{
-					"internalType": "uint256",
-					"name": "_graceDays",
-					"type": "uint256"
-				},
-				{
-					"internalType": "address",
-					"name": "_owner",
-					"type": "address"
-				}
-			],
-			"stateMutability": "nonpayable",
-			"type": "constructor"
-		},
-		{
-			"anonymous": false,
-			"inputs": [
-				{
-					"indexed": false,
-					"internalType": "address",
-					"name": "investor",
-					"type": "address"
-				},
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "amount",
-					"type": "uint256"
-				}
-			],
-			"name": "Invested",
-			"type": "event"
-		},
-		{
-			"anonymous": false,
-			"inputs": [
-				{
-					"indexed": false,
-					"internalType": "address",
-					"name": "investor",
-					"type": "address"
-				},
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "amount",
-					"type": "uint256"
-				}
-			],
-			"name": "Refunded",
-			"type": "event"
-		},
-		{
-			"anonymous": false,
-			"inputs": [
-				{
-					"indexed": false,
-					"internalType": "enum Campaign.Status",
-					"name": "newStatus",
-					"type": "uint8"
-				}
-			],
-			"name": "StatusChanged",
-			"type": "event"
-		},
-		{
-			"anonymous": false,
-			"inputs": [
-				{
-					"indexed": false,
-					"internalType": "address",
-					"name": "owner",
-					"type": "address"
-				},
-				{
-					"indexed": false,
-					"internalType": "uint256",
-					"name": "amount",
-					"type": "uint256"
-				}
-			],
-			"name": "Withdrawn",
-			"type": "event"
-		},
-		{
-			"inputs": [],
-			"name": "getCampaginData",
-			"outputs": [
-				{
-					"components": [
-						{
-							"internalType": "string",
-							"name": "title",
-							"type": "string"
-						},
-						{
-							"internalType": "string",
-							"name": "description",
-							"type": "string"
-						},
-						{
-							"internalType": "string",
-							"name": "imageUrl",
-							"type": "string"
-						},
-						{
-							"internalType": "string",
-							"name": "pdfUrl",
-							"type": "string"
-						},
-						{
-							"internalType": "uint256",
-							"name": "minAmount",
-							"type": "uint256"
-						},
-						{
-							"internalType": "uint256",
-							"name": "maxAmount",
-							"type": "uint256"
-						},
-						{
-							"internalType": "enum Campaign.FundingType",
-							"name": "fundingType",
-							"type": "uint8"
-						},
-						{
-							"internalType": "string",
-							"name": "category",
-							"type": "string"
-						},
-						{
-							"internalType": "uint256",
-							"name": "deadline",
-							"type": "uint256"
-						},
-						{
-							"internalType": "uint256",
-							"name": "graceDays",
-							"type": "uint256"
-						},
-						{
-							"internalType": "address",
-							"name": "owner",
-							"type": "address"
-						},
-						{
-							"internalType": "uint256",
-							"name": "totalInvested",
-							"type": "uint256"
-						},
-						{
-							"internalType": "enum Campaign.Status",
-							"name": "status",
-							"type": "uint8"
-						},
-						{
-							"internalType": "uint8",
-							"name": "totalRaisingVotes",
-							"type": "uint8"
-						},
-						{
-							"internalType": "uint8",
-							"name": "totalInvestors",
-							"type": "uint8"
-						}
-					],
-					"internalType": "struct Campaign.CampaignData",
-					"name": "",
-					"type": "tuple"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"name": "invest",
-			"outputs": [],
-			"stateMutability": "payable",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "address",
-					"name": "",
-					"type": "address"
-				}
-			],
-			"name": "investors",
-			"outputs": [
-				{
-					"internalType": "uint256",
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"name": "raiseTovote",
-			"outputs": [],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"name": "refund",
-			"outputs": [],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "uint256",
-					"name": "_requestId",
-					"type": "uint256"
-				},
-				{
-					"internalType": "bool",
-					"name": "_support",
-					"type": "bool"
-				}
-			],
-			"name": "vote",
-			"outputs": [],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		},
-		{
-			"inputs": [
-				{
-					"internalType": "uint256",
-					"name": "",
-					"type": "uint256"
-				}
-			],
-			"name": "voteRequests",
-			"outputs": [
-				{
-					"internalType": "uint256",
-					"name": "amount",
-					"type": "uint256"
-				},
-				{
-					"internalType": "uint8",
-					"name": "yesVotes",
-					"type": "uint8"
-				},
-				{
-					"internalType": "uint8",
-					"name": "noVotes",
-					"type": "uint8"
-				},
-				{
-					"internalType": "enum Campaign.VStatus",
-					"name": "status",
-					"type": "uint8"
-				}
-			],
-			"stateMutability": "view",
-			"type": "function"
-		},
-		{
-			"inputs": [],
-			"name": "withdraw",
-			"outputs": [],
-			"stateMutability": "nonpayable",
-			"type": "function"
-		}
-
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_title",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_description",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_imgUrl",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_pdfUrl",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_minAmount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_maxAmount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint8",
+				"name": "_fundingType",
+				"type": "uint8"
+			},
+			{
+				"internalType": "string",
+				"name": "_category",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_deadline",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_graceDays",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_owner",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "investor",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Invested",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "investor",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Refunded",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "enum Campaign.Status",
+				"name": "newStatus",
+				"type": "uint8"
+			}
+		],
+		"name": "StatusChanged",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "Withdrawn",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "getCampaginData",
+		"outputs": [
+			{
+				"components": [
+					{
+						"internalType": "string",
+						"name": "title",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "description",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "imageUrl",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "pdfUrl",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "minAmount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "maxAmount",
+						"type": "uint256"
+					},
+					{
+						"internalType": "enum Campaign.FundingType",
+						"name": "fundingType",
+						"type": "uint8"
+					},
+					{
+						"internalType": "string",
+						"name": "category",
+						"type": "string"
+					},
+					{
+						"internalType": "uint256",
+						"name": "deadline",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "graceDays",
+						"type": "uint256"
+					},
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "totalInvested",
+						"type": "uint256"
+					},
+					{
+						"internalType": "enum Campaign.Status",
+						"name": "status",
+						"type": "uint8"
+					},
+					{
+						"internalType": "uint8",
+						"name": "totalRaisingVotes",
+						"type": "uint8"
+					},
+					{
+						"internalType": "address[]",
+						"name": "totalInvestors",
+						"type": "address[]"
+					}
+				],
+				"internalType": "struct Campaign.CampaignData",
+				"name": "",
+				"type": "tuple"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "invest",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "investors",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "raiseTovote",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "refund",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_requestId",
+				"type": "uint256"
+			},
+			{
+				"internalType": "bool",
+				"name": "_support",
+				"type": "bool"
+			}
+		],
+		"name": "vote",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "voteRequests",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint8",
+				"name": "yesVotes",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint8",
+				"name": "noVotes",
+				"type": "uint8"
+			},
+			{
+				"internalType": "enum Campaign.VStatus",
+				"name": "status",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "withdraw",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}
 	];
   constructor(private walletServices : EvmWalletServices) {
-    this.walletServices.walletState$.subscribe((state : WalletState) =>{
-        this.currentWalletState = state;
-        console.log(this.currentWalletState,"currentwalletstate");
-      })
+  
    }
 
-  private getProvider() {
-    return this.currentWalletState?.provider;
+   	private currentWalletStateValue<K extends keyof WalletState>(key: K	): WalletState[K] {
+		return this.walletServices.walletState$.getValue()[key];
+	}
+
+
+   private getProvider() {
+	return this.currentWalletStateValue('provider');
   }
 
   private async getSigner() {
@@ -514,7 +514,24 @@ export class ContractService {
         data.category,
         data.deadline
       );
-      return await tx.wait();
+      const receipts =  await tx.wait();
+	  const iface = contract.interface;
+	  let campaignAddress;
+	for(const log of receipts.logs){
+		try {			
+			const parsedLog = iface.parseLog(log);
+			if(parsedLog?.name === "CampaignCreated"){
+				campaignAddress = parsedLog.args[0];
+				const owner = parsedLog.args[1];
+				console.log('New Campaign Address:', campaignAddress);
+      			console.log('Creator:', owner);
+				// return {campaignAddress,owner}
+			}
+		} catch(err){
+			// console.log("Error parsing log",err);
+		}
+	}
+	return campaignAddress;
     } catch (error) {
       console.log(error , "contractServicessss");
     }
@@ -544,7 +561,32 @@ export class ContractService {
 			return null;
 		}
   }
-
+  async getCampaignBackersAmt(campaignAddress: string,backerAddress: string) {
+	try {
+		const contract = await this.getCampaignContract(campaignAddress);
+		const data = await contract['investors'](backerAddress);
+		// await contract.
+		return data
+	}
+	catch (error) {
+		console.error('Error fetching campaign backers:', error);
+		return "0";
+	}
+  }
+  async getVoteingResults(campaignAddress: string,requestId: number) {
+	try {
+		console.log(campaignAddress , requestId , "contractservices");
+		
+		const contract = await this.getCampaignContract(campaignAddress);
+		const data =  await contract['voteRequests'](requestId);
+		console.log(data,"data in votiong");
+		
+		return data;
+	} catch (error) {
+		console.error('Error fetching voting results:', error);
+		throw error;
+	}
+  }
   async invest(campaignAddress: string, amount: string) {
     const contract = await this.getCampaignContract(campaignAddress);
     const value = ethers.parseEther(amount.toString());

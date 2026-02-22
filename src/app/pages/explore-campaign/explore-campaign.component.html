@@ -35,13 +35,38 @@
           @for (campaign of filteredCampaigns(); track campaign.id) {
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme hover:shadow-theme-lg transition-all duration-300 hover:-translate-y-1 border border-gray-200 dark:border-gray-700 overflow-hidden">
               <!-- Campaign Image -->
-              <div class="relative h-10 overflow-hidden">
+              <div class="relative h-10">
                 <!-- <img [src]="campaign.image" [alt]="campaign.title" class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" loading="lazy"> -->
                 <div class="absolute top-3 right-3 bg-blue-600 dark:bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">
                   {{ campaign.category }}
                 </div>
+                <div
+                    class="absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide flex items-center gap-1"
+                    [ngClass]="{
+                      'bg-red-600 text-white': campaign.fundingType === 0,
+                      'bg-green-600 text-white': campaign.fundingType === 1
+                    }"
+                  >
+
+                  {{ campaign.fundingType === 0 ? 'AON' : 'Flexible' }}
+
+                  <!-- Tooltip Wrapper -->
+                  <div class="relative group cursor-pointer">
+                    <span class="text-white">ⓘ</span>
+
+                    <!-- Tooltip -->
+                    <div
+                      class="absolute left-1 -translate-x-1 mt-2 w-56 p-2 rounded-md bg-black text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50"
+                    >
+                      {{
+                        campaign.fundingType === 0
+                          ? 'Creator receives funds only if goal is reached before deadline. - All or Nothing (AON) funding model.'
+                          : 'Creator keeps whatever amount is raised, even if goal is not met.'
+                      }}
+                    </div>
+                  </div>
+                </div>
               </div>
-    
               <!-- Campaign Content -->
               <div class="p-6">
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2 line-clamp-2">{{ campaign.title }}</h3>
