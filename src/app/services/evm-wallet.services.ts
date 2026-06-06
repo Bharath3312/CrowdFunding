@@ -3,6 +3,8 @@ import { BehaviorSubject } from 'rxjs';
 import { WalletProvider, WalletState } from '../models/wallet-provider.model';
 import { initWalletDiscovery } from './evm-provider-registry';
 import { ethers } from 'ethers';
+import { ApiServiceService } from './api-service.service';
+import { ToastService } from './toast.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,15 +19,16 @@ export class EvmWalletServices {
     isLoading: false,
   }
 
-  private walletState$ =   new BehaviorSubject<WalletState>(this.defaultState);
+  public walletState$ =   new BehaviorSubject<WalletState>(this.defaultState);
   private wallets: WalletProvider[] = [];
 
-  constructor() {
+  constructor(private apiService : ApiServiceService,private toast : ToastService) {
     
     initWalletDiscovery((wallet) => {
       console.log(wallet.name,"wallets init");
       this.wallets.push(wallet);
-      if(wallet.name =="MetaMask"){
+     const preferredWallet = localStorage.getItem('preferredWallet');
+      if(preferredWallet == wallet.name){
           this.connect(wallet)
       }
     });
@@ -43,10 +46,66 @@ export class EvmWalletServices {
   get walletState$Observable(){
     return this.walletState$.asObservable();
   }
+  async verifiySignature(message: string, signature: string){
+    try {
+        // const message ="Login to Crowdfunding App: 1774923720982";
+        // const singmessage = "0xf5cb76fc69b809ab440e472abca24808986e11a47950e3e15c0815b3fcd357e61721fd7a1293d62388ba4102150ae96871215d80cdd877caa6227ebe19355e361c";
+        const signerAddress = await ethers.verifyMessage(message, signature);
+        console.log("Signer Address to verify:", signerAddress);
+    } catch (err) {
+      console.error("Signature verification failed", err);
+    }
+
+  }
+  async signMessage(nonce : string): Promise<string | void> { 
+    try {
+      // const nonce = "Sign this message to login: b71f151d-5e24-45d5-a1ba-77e454460107";
+      
+      console.log(nonce,"message");
+      
+      const signature =  await this.walletState$.getValue().provider.request({
+        method :'personal_sign',
+        params : [nonce, this.walletState$.getValue().address]
+      });
+      console.log("Message signed:", signature);
+      // this.verifiySignature(nonce,signature);
+      return signature;
+
+    } catch (err) {
+      console.error("Message signing failed", err);
+    }
+  }
+
+  async authenticate(walletAddress : string){
+      this.apiService.getNonce(walletAddress).subscribe(async (res)=>{
+        if(res.success && res.nonce){
+            const signMessage = await this.signMessage(res.nonce);
+            if(signMessage){
+              this.apiService.verifySignature(walletAddress, signMessage,res.nonce).subscribe((verifyRes)=>{
+                if(verifyRes.success){
+                  console.log("Authentication successful");
+                  if(verifyRes.token){
+                    this.apiService.setToken(verifyRes.token);
+                  }
+                }
+              });
+            }else{
+              this.toast.error("Authentication failed","Message signing failed");
+            }
+        }else{
+          this.toast.error("Authentication failed",res.msg || "Could not get nonce");
+        }
+      },(err)=>{
+        console.error("Nonce request failed", err);
+        this.toast.error("Authentication failed","Could not get nonce");
+      });
+  }
+
 
 
   async connect(wallet: WalletProvider): Promise<boolean> {
     try {
+      localStorage.setItem('preferredWallet', wallet.name);
       this.updateState({isLoading:true})
       const provider = new ethers.BrowserProvider(wallet.provider);
 
@@ -61,7 +120,7 @@ export class EvmWalletServices {
       console.log(chainId,"chainds");
 
       this.listenForEvents(wallet.provider);
-
+      this.authenticate(account[0]);
       return true;
     } catch (err) {
       this.updateState({isLoading:false})
@@ -74,6 +133,7 @@ export class EvmWalletServices {
       console.log(accounts,"list");
       if(!accounts.length) this.disconnect()
       this.updateState({address : accounts[0]})
+      this.authenticate(accounts[0]);
     });
 
     provider.on("chainChanged", (chainId: string) => {
@@ -85,6 +145,19 @@ export class EvmWalletServices {
       console.log("disconnect metamask !!!!!!!!!!!");
       this.disconnect();
     });
+  }
+
+  async switchCain(chainId: number=31337): Promise<boolean> {
+    try {
+      await (this.walletState$.getValue().provider as any).request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0x' + chainId.toString(16) }],
+      });
+      return true;
+    } catch (err) {
+      console.error("Switch chain failed*****************", err);
+      return false;
+    }
   }
 
   disconnect() {

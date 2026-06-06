@@ -1,0 +1,109 @@
+<div class="min-h-screen bg-slate-50 px-4 py-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl space-y-6">
+    <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold tracking-tight">My Contributions</h1>
+        <p class="text-sm text-slate-600 dark:text-slate-400">Track every campaign you have supported.</p>
+      </div>
+
+      <div class="w-full sm:w-56">
+        <label for="statusFilter" class="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          Filter
+        </label>
+        <select
+          id="statusFilter"
+          class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm outline-none transition focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:focus:border-slate-500"
+          [value]="selectedFilter"
+          (change)="selectedFilter = $any($event.target).value"
+        >
+          <option value="All">All</option>
+          <option value="Active">Active</option>
+          <option value="Successful">Successful</option>
+          <option value="Failed">Failed</option>
+        </select>
+      </div>
+    </div>
+
+    <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Total Donated</p>
+        <p class="mt-2 text-2xl font-semibold">{{ totalDonated | currency:'USD':'symbol':'1.0-0' }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Campaigns Backed</p>
+        <p class="mt-2 text-2xl font-semibold">{{ campaignsBacked }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Active Campaigns Supported</p>
+        <p class="mt-2 text-2xl font-semibold">{{ activeCampaignsSupported }}</p>
+      </div>
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Successful Campaigns Supported</p>
+        <p class="mt-2 text-2xl font-semibold">{{ successfulCampaignsSupported }}</p>
+      </div>
+    </section>
+
+    <section class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div class="hidden grid-cols-12 gap-4 border-b border-slate-200 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:text-slate-400 md:grid">
+        <div class="col-span-5">Campaign</div>
+        <div class="col-span-2">Contributed</div>
+        <div class="col-span-2">Date</div>
+        <div class="col-span-2">Progress / Status</div>
+        <div class="col-span-1 text-right">Action</div>
+      </div>
+
+      <div *ngFor="let item of filteredContributions" class="border-b border-slate-200 px-4 py-4 last:border-b-0 dark:border-slate-800 sm:px-5">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-12 md:items-center">
+          <div class="md:col-span-5">
+            <div class="flex items-center gap-3">
+              <img [src]="item.campaignImage" [alt]="item.campaignTitle" class="h-14 w-14 rounded-lg object-cover" />
+              <p class="font-medium leading-tight">{{ item.campaignTitle }}</p>
+            </div>
+          </div>
+
+          <div class="md:col-span-2">
+            <p class="text-xs text-slate-500 dark:text-slate-400 md:hidden">Amount Contributed</p>
+            <p class="font-semibold">{{ item.amountContributed | currency:'USD':'symbol':'1.0-0' }}</p>
+          </div>
+
+          <div class="md:col-span-2">
+            <p class="text-xs text-slate-500 dark:text-slate-400 md:hidden">Contribution Date</p>
+            <p>{{ item.contributionDate | date:'mediumDate' }}</p>
+          </div>
+
+          <div class="space-y-2 md:col-span-2">
+            <div class="h-2 w-full rounded-full bg-slate-200 dark:bg-slate-800">
+              <div
+                class="h-2 rounded-full bg-slate-900 dark:bg-slate-100"
+                [style.width.%]="progress(item) * 100"
+              ></div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-500 dark:text-slate-400">{{ progress(item) | percent:'1.0-0' }}</span>
+              <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold" [ngClass]="statusBadgeClass(item.campaignStatus)">
+                {{ item.campaignStatus }}
+              </span>
+            </div>
+          </div>
+
+          <div class="md:col-span-1 md:text-right">
+            <button
+              type="button"
+              (click)="viewReceipt(item)"
+              class="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
+            >
+              View Receipt
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        *ngIf="filteredContributions.length === 0"
+        class="px-5 py-10 text-center text-sm text-slate-600 dark:text-slate-400"
+      >
+        No contributions found for this filter.
+      </div>
+    </section>
+  </div>
+</div>

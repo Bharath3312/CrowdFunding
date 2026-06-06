@@ -1,8 +1,14 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
-
+import { FirebaseService } from '../../services/firebase.service';
+import { ContractService } from '../../services/contract.service';
+import { ethers } from 'ethers';
+import { EvmWalletServices } from '../../services/evm-wallet.services';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { WalletState } from '../../models/wallet-provider.model';
+import { ToastService } from '../../services/toast.service';
 interface Campaign {
   id: string;
   title: string;
@@ -13,7 +19,6 @@ interface Campaign {
   daysLeft: number;
   status: 'active' | 'completed' | 'draft';
   progress: number;
-  image: string;
 }
 
 interface Activity {
@@ -29,8 +34,8 @@ interface Activity {
 interface StatCard {
   title: string;
   value: string | number;
-  change: number;
-  changeType: 'positive' | 'negative' | 'neutral';
+  // change: number;
+  // changeType: 'positive' | 'negative' | 'neutral';
   icon: string;
 }
 
@@ -42,94 +47,78 @@ interface StatCard {
   styleUrls: ['./dashboard.component.css']
 })
 export class DashboardComponent {
+  private router = inject(Router);
   private themeService = inject(ThemeService);
+  private firebase = inject(FirebaseService);
+  private contractServices = inject(ContractService);
+  private walletServices = inject(EvmWalletServices);
+  private toast = inject(ToastService);
 
+  walletState : WalletState = this.walletServices.walletState$.getValue();
+  wallet$ = toSignal(
+    this.walletServices.walletState$Observable,
+    { initialValue: this.walletServices.walletState$.getValue() }
+  )
+  constructor(){
+    
+    effect(() => {
+      const state  = this.wallet$();
+      console.log(state,"wallet state in dashboard component");
+      if(!state.isConnected){
+        this.toast.error('Error','Please connect your wallet to access the dashboard');
+        this.router.navigate(['/']);
+      }else {
+        this.walletState = state;
+        this.loading.set(true);
+        this.getUserData();   
+      }
+    })
+  }
   // Reactive theme state
   readonly isDarkMode = this.themeService.isDarkMode;
-
+  loading = signal<boolean>(false);
+  
   // Dashboard data signals
-  readonly stats = signal<StatCard[]>([
+  userData = signal<{totalRaised: number, activeCampaigns: number, totalBackers: number,totalSuccess: number,totalCampaign: number}>({
+    totalRaised: 0,
+    activeCampaigns: 0,
+    totalBackers: 0,
+    totalSuccess: 0,
+    totalCampaign: 0
+  });
+  stats = computed<StatCard[]>(() => [
     {
       title: 'Total Raised',
-      value: '$45,230',
-      change: 12.5,
-      changeType: 'positive',
-      icon: '💰'
+      value: `$${this.userData().totalRaised}`,
+      // change: 0,
+      // changeType: 'positive',
+      icon: '💰 '
     },
     {
       title: 'Active Campaigns',
-      value: 8,
-      change: 2,
-      changeType: 'positive',
+      value: this.userData().activeCampaigns,
+      // change: 2,
+      // changeType: 'positive',
       icon: '🚀'
     },
     {
       title: 'Total Backers',
-      value: 1247,
-      change: -3.2,
-      changeType: 'negative',
+      value: this.userData().totalBackers,
+      // change: -3.2,
+      // changeType: 'negative',
       icon: '👥'
     },
     {
       title: 'Success Rate',
-      value: '87%',
-      change: 5.1,
-      changeType: 'positive',
+      value: this.userData().totalCampaign > 0 ? `${Math.round((this.userData().totalSuccess / this.userData().totalCampaign) * 100)}%` : '0%',
+      // change: 5.1,
+      // changeType: 'positive',
       icon: '📈'
     }
   ]);
+  
 
-  readonly campaigns = signal<Campaign[]>([
-    {
-      id: '1',
-      title: 'Sustainable Energy Revolution',
-      category: 'Technology',
-      goal: 50000,
-      raised: 38750,
-      backers: 234,
-      daysLeft: 15,
-      status: 'active',
-      progress: 77.5,
-      image: '/assets/campaign-1.jpg'
-    },
-    {
-      id: '2',
-      title: 'Community Garden Network',
-      category: 'Environment',
-      goal: 25000,
-      raised: 18200,
-      backers: 156,
-      daysLeft: 8,
-      status: 'active',
-      progress: 72.8,
-      image: '/assets/campaign-2.jpg'
-    },
-    {
-      id: '3',
-      title: 'Educational VR Platform',
-      category: 'Education',
-      goal: 75000,
-      raised: 52000,
-      backers: 389,
-      daysLeft: 22,
-      status: 'active',
-      progress: 69.3,
-      image: '/assets/campaign-3.jpg'
-    },
-    {
-      id: '4',
-      title: 'Local Art Collective',
-      category: 'Arts',
-      goal: 15000,
-      raised: 15000,
-      backers: 98,
-      daysLeft: 0,
-      status: 'completed',
-      progress: 100,
-      image: '/assets/campaign-4.jpg'
-    }
-  ]);
-
+  campaigns = signal<Campaign[]>([]);
   readonly recentActivity = signal<Activity[]>([
     {
       id: '1',
@@ -177,6 +166,10 @@ export class DashboardComponent {
     this.campaigns().filter(campaign => campaign.status === 'completed')
   );
 
+  ngOnInit() {  
+      // this.getUserData();
+  }
+
   // Helper methods
   getStatusColor(status: Campaign['status']): string {
     switch (status) {
@@ -216,4 +209,64 @@ export class DashboardComponent {
       maximumFractionDigits: 0
     }).format(amount);
   }
+
+  async getUserData() {
+    //  const user = await this.firebase.getUserData(`${this.walletState.address}_${this.walletState?.chainId}`)
+        
+    //  this.userData.set({
+    //       totalRaised: user?.['totalRaised'] || 0,
+    //       activeCampaigns: user?.['activeCampaigns'] || 0,
+    //       totalBackers: user?.['totalBackers'] || 0,
+    //       totalSuccess: user?.['totalSuccess'] || 0,
+    //       totalCampaign: user?.['campaigns'].length || 0,
+    //   });
+    //   if(user?.['campaigns']?.length){
+    //       this.getCampaignsData(user?.['campaigns'] || []);
+    //   }else{
+    //     this.campaigns.set([]);
+    //     this.loading.set(false);
+    //   }
+  }
+
+  async getCampaignsData(campaigns: string[]) {
+    // Get last 4 campaigns safely
+   try {
+     const lastFour = campaigns.slice(-4).reverse(); 
+     const filterdCampaigns: Campaign[] = [];
+     const calculateDaysLeft = (deadline: number): number =>{
+       const now = Date.now();
+       const end = deadline * 1000;
+       return Math.max(Math.ceil((end - now) / (1000 * 60 * 60 * 24)), 0);
+     }
+     for (const addr of lastFour) {
+       console.log('Latest Campaign address:', addr);
+       const campaignData = await this.contractServices.getCampaignData(addr);
+       const status = Number(campaignData.status);
+       const campaign = {
+         id: filterdCampaigns.length.toString(), // or use addr for unique id
+         title: campaignData.title,
+         category: campaignData.category.toUpperCase(),
+         goal: parseInt(ethers.formatEther(campaignData.maxAmount)),
+         raised: parseInt(ethers.formatEther(campaignData.totalInvested)),
+         backers: campaignData.totalInvestors.length ?? 0,
+         daysLeft: calculateDaysLeft(Number(campaignData.deadline)),
+         status: [0,1].includes(status) ? 'active' : [2,4].includes(status) ? 'completed' : 'draft',
+         progress : 0
+       }
+       campaign.progress = Math.min((campaign.raised / campaign.goal) * 100, 100);
+       filterdCampaigns.push(campaign as Campaign); ;
+      //  console.log('Campaign data:', campaign);
+     }
+     if(filterdCampaigns.length) this.campaigns.set(filterdCampaigns);
+     this.loading.set(false);
+   } catch (error) {
+     console.error('Error fetching campaign data:', error);
+     this.loading.set(false);
+   }
+
+  }
+
+
+
+
 }

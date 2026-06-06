@@ -3,6 +3,7 @@ export interface WalletProvider {
     name: string;
     icon: string;
     provider: any;
+    enabled: boolean;
   }
   
 export interface WalletState {

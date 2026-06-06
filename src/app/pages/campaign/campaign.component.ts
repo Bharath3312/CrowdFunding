@@ -1,29 +1,34 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import {  ActivatedRoute, Router } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
+import { ContractService } from '../../services/contract.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ethers } from 'ethers';
+import { ToastModule } from 'primeng/toast'; 
+import { ButtonModule } from 'primeng/button';
+import { ToastService } from '../../services/toast.service';
+import { FirebaseService } from '../../services/firebase.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { EvmWalletServices } from '../../services/evm-wallet.services';
+import { WalletState } from '../../models/wallet-provider.model';
 
 interface Campaign {
   id: number;
   title: string;
   description: string;
-  fullDescription: string;
   image: string;
+  pdf : string;
+  owner : string;
   category: string;
   raised: number;
   goal: number;
+  minAmount: number;
   backers: number;
   daysLeft: number;
-  creator: {
-    name: string;
-    avatar: string;
-    bio: string;
-    location: string;
-    projects: number;
-  };
-  rewards: Reward[];
-  updates: Update[];
-  faqs: FAQ[];
+  fundingType: number;
+  votingRaised : number
+  status: number;
 }
 
 interface Reward {
@@ -53,139 +58,165 @@ interface FAQ {
 @Component({
   selector: 'app-campaign',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,ToastModule,ButtonModule],
   templateUrl: './campaign.component.html',
   styleUrls: ['./campaign.component.css']
 })
 export class CampaignComponent implements OnInit {
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  
   private themeService = inject(ThemeService);
+  private sanitizer = inject(DomSanitizer);
+  private toast = inject(ToastService);
 
+  private firebase  = inject(FirebaseService)
+  public contractService = inject(ContractService);
+  private walletServices =  inject(EvmWalletServices)
+  
   readonly currentTheme = this.themeService.theme;
+  isPdfLoading = signal<boolean>(true);
+  campaignAddress: string | null = null;
 
-  // Campaign data signal
   readonly campaign = signal<Campaign | null>(null);
+  readonly backers = signal<{address: string, value : number}[]>([]);
+  readonly votingResults = signal<{amount : number; yes: number; no: number; status: number}[]>([]);
+  readonly activeTab = signal<'PDF' | 'updates' | 'faqs'>('PDF');
 
-  // Active tab signal
-  readonly activeTab = signal<'story' | 'updates' | 'faqs'>('story');
+  walletState : WalletState  = this.walletServices.walletState$.getValue();
 
-  // Sample campaign data
-  private readonly sampleCampaigns: Campaign[] = [
-    {
-      id: 1,
-      title: 'Sustainable Energy Revolution',
-      description: 'Revolutionary solar panel technology that reduces installation costs by 60% and increases efficiency by 40%.',
-      fullDescription: `
-        <h2>The Problem</h2>
-        <p>The world is facing an energy crisis. Traditional solar panels are expensive to install and maintain, making renewable energy inaccessible to millions of households and businesses. Our current technology is stuck in the past, with efficiency rates that haven't improved significantly in decades.</p>
+  wallet$ = toSignal(
+    this.walletServices.walletState$Observable,
+    {initialValue : this.walletServices.walletState$.getValue()}
+  )
 
-        <h2>Our Solution</h2>
-        <p>We've developed a breakthrough solar panel technology that combines nanotechnology with advanced materials science. Our panels are:</p>
-        <ul>
-          <li><strong>60% cheaper to install</strong> due to simplified mounting systems</li>
-          <li><strong>40% more efficient</strong> through quantum dot technology</li>
-          <li><strong>Self-cleaning</strong> with hydrophobic coatings</li>
-          <li><strong>25-year warranty</strong> with guaranteed performance</li>
-        </ul>
-
-        <h2>Why This Matters</h2>
-        <p>Every household and business deserves access to clean, affordable energy. Our technology will accelerate the transition to renewable energy and help combat climate change. With your support, we can bring this technology to market and make sustainable energy accessible to everyone.</p>
-
-        <h2>Our Team</h2>
-        <p>We're a team of engineers, scientists, and entrepreneurs with decades of experience in renewable energy and materials science. Our lead engineer has worked at major solar companies and holds multiple patents in photovoltaic technology.</p>
-      `,
-      image: 'https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=800&h=400&fit=crop',
-      category: 'Technology',
-      raised: 125000,
-      goal: 200000,
-      backers: 342,
-      daysLeft: 15,
-      creator: {
-        name: 'GreenTech Innovations',
-        avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-        bio: 'Leading the charge in sustainable energy solutions since 2018.',
-        location: 'San Francisco, CA',
-        projects: 3
-      },
-      rewards: [
-        {
-          id: 1,
-          title: 'Early Supporter',
-          description: 'Get early access to our technology updates and be featured in our supporter wall.',
-          amount: 25,
-          estimatedDelivery: 'December 2024',
-          backers: 89,
-          limited: false
-        },
-        {
-          id: 2,
-          title: 'Home Installation Kit',
-          description: 'Complete solar panel installation kit for a standard home (up to 2kW system).',
-          amount: 500,
-          estimatedDelivery: 'March 2025',
-          backers: 45,
-          limited: true,
-          limit: 100
-        },
-        {
-          id: 3,
-          title: 'Commercial Partnership',
-          description: 'Partner with us for commercial installations. Includes consultation and custom solutions.',
-          amount: 2500,
-          estimatedDelivery: 'January 2025',
-          backers: 12,
-          limited: true,
-          limit: 20
-        }
-      ],
-      updates: [
-        {
-          id: 1,
-          title: 'Prototype Testing Complete!',
-          content: 'We\'re excited to announce that our prototype testing phase has been completed successfully. The results exceeded our expectations with 42% efficiency gains and 65% cost reduction in installation.',
-          date: '2024-10-01',
-          likes: 45
-        },
-        {
-          id: 2,
-          title: 'Partnership Announcement',
-          content: 'We\'ve partnered with a leading materials science research institute to accelerate our development timeline. This collaboration will help us bring the product to market 3 months earlier.',
-          date: '2024-09-15',
-          likes: 32
-        }
-      ],
-      faqs: [
-        {
-          question: 'When will the product be available?',
-          answer: 'We expect to begin shipping to backers in Q1 2025, with general availability following in Q2 2025.'
-        },
-        {
-          question: 'What is the warranty on the panels?',
-          answer: 'All our panels come with a 25-year performance warranty and 10-year product warranty.'
-        },
-        {
-          question: 'Can I install this myself?',
-          answer: 'While DIY installation is possible for technically inclined users, we recommend professional installation for optimal performance and safety.'
-        }
-      ]
-    }
-  ];
-
-  ngOnInit() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    const campaign = this.sampleCampaigns.find(c => c.id === id);
-
-    if (campaign) {
-      this.campaign.set(campaign);
-    } else {
-      // Handle campaign not found
-      this.router.navigate(['/explore']);
-    }
+  constructor(){
+    effect(()=>{
+      const state = this.wallet$();
+      console.log(state,"wallet state in campaign page");
+      this.walletState = state;
+    })
+  }
+  async ngOnInit() {    
+    this.fetchCampaignData();    
   }
 
+  async fetchCampaignData() {
+    this.campaignAddress = this.route.snapshot.queryParamMap.get('id') ?? null;
+    if (this.campaignAddress) {
+      console.log('Campaign address from query params:', this.campaignAddress);
+      const campaignData = await  this.contractService.getCampaignData(this.campaignAddress);
+      console.log(campaignData,"campaignDatacampaignDatacampaignData");
+      
+      if (campaignData){
+        const campaign: Campaign = {
+          id: 0,
+          title: campaignData.title,
+          description: campaignData.description,
+          image: campaignData.imageUrl,
+          pdf : campaignData.pdfUrl,
+          owner : campaignData.owner,
+          raised : parseInt(ethers.formatEther(campaignData.totalInvested)),
+          goal : parseInt(ethers.formatEther(campaignData.maxAmount)),
+          minAmount : parseInt(ethers.formatEther(campaignData.minAmount)),
+          backers : campaignData.totalInvestors.length ?? 0,
+          category : campaignData.category.toUpperCase(),
+          daysLeft : this.calculateDaysLeft(Number(campaignData.deadline)),
+          fundingType : Number(campaignData.fundingType),
+          votingRaised : Number(campaignData.totalRaisingVotes),
+          status :Number(campaignData.status)
+        }
+        if(campaignData.totalInvestors.length > 0){
+          this.getBackers(campaignData.totalInvestors);
+        }
+        if(campaignData.totalRaisingVotes > 0){
+          this.getVotingResults(Number(campaignData.totalRaisingVotes));
+        }
+        this.isPdfLoading.set(false);
+        console.log(campaign,"need campaignDAta");
+        this.campaign.set(campaign);
+      }else {
+        this.router.navigate(['**']);
+      }
+    } else {
+      console.log('No campaign address provided in query params.');
+      this.router.navigate(['**']);
+    }
+  }
+  async getVotingResults(votingRaised : number)  {
+    try {
+      console.log(votingRaised,"votingRaisedvotingRaisedvotingRaised");
+      
+      for(let i=votingRaised -1 ;i>= 0;i--){
+        const voteData = await this.contractService.getVoteingResults(this.campaignAddress as string, i);
+        const results = {
+          amount : parseInt(ethers.formatEther(voteData.amount)),
+          yes : Number(voteData.yesVotes),
+          no :Number(voteData.noVotes),
+          status :Number(voteData.status)
+        }
+        console.log(results,"resultssss",voteData);
+        
+        this.votingResults.update(votes => [...votes, results]);
+      }
+        console.log(this.votingResults(),"voteData in loop");
+      
+    } catch (error) {
+      console.error('Error fetching voting results:', error);
+    }
+  }
+  async getBackers(investors: string[]) {
+    try {
+      // const backersData = [];/
+      for (const investor of investors) {
+        const userData = await this.contractService.getCampaignBackersAmt(this.campaignAddress as string, investor);
+        // backersData.push({
+        //   address: investor,
+        //   name: userData?.['name'] || 'Anonymous',
+        //   profileImage: userData?.['profileImage'] || 'assets/default-profile.png'
+        // });
+        this.backers.update(backers => [...backers, {address: investor, value: parseInt(ethers.formatEther(userData))}]);
+      }
+      console.log(this.backers(),"backersData");
+      // You can set this data to a signal if you want to display it in the template
+
+    } catch (error) {
+      console.error('Error fetching backers data:', error);
+    }
+  }
+  getStatusConfig(status: number) {
+  switch (status) {
+    case 0:
+      return {
+        label: 'Processing',
+        classes: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300'
+      };
+    case 1:
+      return {
+        label: 'Approved',
+        classes: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
+      };
+    case 2:
+      return {
+        label: 'Rejected',
+        classes: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300'
+      };
+    default:
+      return { label: '', classes: '' };
+  }
+}
+
+  private calculateDaysLeft(deadline: number): number {
+    const now = Date.now();
+    const end = deadline * 1000;
+    return Math.max(Math.ceil((end - now) / (1000 * 60 * 60 * 24)), 0);
+  }
+
+  getSafePdfUrl(pdf: string) {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(pdf);
+  }
   // Methods
-  setActiveTab(tab: 'story' | 'updates' | 'faqs') {
+  setActiveTab(tab: 'PDF' | 'updates' | 'faqs') {
     this.activeTab.set(tab);
   }
 
@@ -195,19 +226,13 @@ export class CampaignComponent implements OnInit {
     return Math.min((campaign.raised / campaign.goal) * 100, 100);
   }
 
-  formatCurrency(amount: number): string {
+  formatCurrency(amount: number, symbol: string = 'ETH'): string {
     return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount);
+      maximumFractionDigits: 2
+    }).format(amount) + ` ${symbol}`;
   }
 
-  backProject(reward: Reward) {
-    // Navigate to pledge page or open modal
-    console.log('Backing project with reward:', reward);
-  }
 
   shareCampaign() {
     if (navigator.share) {
@@ -222,11 +247,93 @@ export class CampaignComponent implements OnInit {
     }
   }
 
-  toggleTheme() {
-    this.themeService.toggleTheme();
-  }
-
   goBack() {
     this.router.navigate(['/explorer']);
+  }
+
+  async doFunding(amt: string) {
+    const value = Number(amt);
+    console.log(value,"amountamountamount");
+    const campaign = this.campaign();
+    if (!campaign) return ;
+    const remainingAmount = campaign.goal - campaign.raised;
+    if( value < campaign.minAmount || value > remainingAmount){
+      this.toast.error('Error',`Allowable amount is between ${this.formatCurrency(campaign.minAmount)} and ${this.formatCurrency(remainingAmount)}`);
+      return;
+    }
+    const payFund = await this.contractService.invest(this.campaignAddress as string,amt)
+    console.log(payFund,"trx data");
+    this.toast.success('Success',`Investment successful! Transaction Hash: ${payFund?.txHash}`);
+    const backers = this.campaign()?.backers || 0;
+    this.backers.set([]);
+    await this.fetchCampaignData(); // Refresh campaign data
+    // if((this.campaign()?.backers ?? 0) > backers){
+    //   await this.firebase.updateContribution(`${this.walletState.address}_${this.walletState.chainId}`, this.campaignAddress as string ,value);
+    //   await this.firebase.incrementUserCampaignStat(
+    //     `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalBackers', 1);
+    // }
+    //   await this.firebase.incrementUserCampaignStat(
+    //   `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalRaised', value);
+    
+    // if((this.campaign()?.backers ?? 0)> backers && this.campaign()?.owner){
+    //   const firebaseData = await this.firebase.getUserData(`${this.campaign()?.owner}_${this.walletState.chainId}`);
+    //   if(firebaseData){
+    //     this.firebase.incrementUserStat(
+    //       `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalBackers', 1);
+    //       this.firebase.incrementUserStat(
+    //         `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalRaised', value);
+    //       // this.firebase.updateUserData(
+    //       //   `${this.campaign()?.owner}_${this.walletState.chainId}`, {
+    //       //     backers : firebaseData?.['backers'] ? [...(firebaseData['backers']), this.walletState.address] : [this.walletState.address]
+    //       //   }
+    //       // )
+    //   }
+
+    // }
+  }
+  refund(){
+      console.log("ahh refunduuuu");
+      this.contractService.refund(this.campaignAddress as string).then((res)=>{
+        console.log(res,"refundd")
+         this.toast.success('Success',`Vote raised successfully! Transaction Hash: ${res?.txHash}`);
+        this.fetchCampaignData();
+      })
+  }
+  raiseVote(){
+      console.log("rasivote,,,,,");
+      this.contractService.raiseToVote(this.campaignAddress as string).then((res)=>{
+        console.log(res,"vote response");
+        this.toast.success('Success',`Vote raised successfully! Transaction Hash: ${res?.txHash}`);
+        this.fetchCampaignData();
+      }).catch((err)=>{
+        console.log(err,"vote error");
+        this.toast.error('Error',`Failed to raise vote: ${err.message || err}`);
+      })
+  }
+  vote(status : boolean){
+    console.log("voting,,,,,",status);
+    this.contractService.vote(this.campaignAddress as string, this.votingResults().length -1, status).then((res)=>{
+      console.log(res,"vote response");
+      this.toast.success('Success',`Voted successfully! Transaction Hash: ${res?.txHash}`);
+      this.votingResults.set([])
+        this.fetchCampaignData();
+    }).catch((err)=>{
+      console.log(err,"vote error");
+      this.toast.error('Error',`Failed to vote: ${err.message || err}`);
+    })
+  }
+  withdrawFunds(){
+    this.contractService.withdraw(this.campaignAddress as string).then((res)=>{
+      console.log(res,"withdraw resp");
+      this.toast.success('Withdraw is successful! Transaction Hash: ${res?.txHash}', 'Success');
+      this.backers.set([]);
+      this.votingResults.set([]);
+      this.fetchCampaignData(); /// when withdraw is not update properly  is on going||  then refund  and voteing flow is completed 
+    }).catch((err)=>{
+      console.log(err,"vote error");
+      this.toast.error('Error',`Failed to vote: ${err.message || err}`);
+    })
+  }
+  ngDestroy() {
   }
 }

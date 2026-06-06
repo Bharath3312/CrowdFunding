@@ -8,14 +8,19 @@
       Back to Explore
     </button>
   </div>
-
+  <!-- deside to the ui changes -->
   <!-- Hero Section -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-theme overflow-hidden border border-gray-200 dark:border-gray-700">
       <div class="md:flex">
-        <div class="md:w-1/2">
-          <img [src]="campaign.image" [alt]="campaign.title" class="w-full h-64 md:h-full object-cover">
-        </div>
+       <div class="md:w-1/2 aspect-[16/9] overflow-hidden">
+  <img
+    [src]="campaign.image"
+    [alt]="campaign.title"
+    class="w-full h-full object-cover"
+  >
+</div>
+
         <div class="md:w-1/2 p-8">
           <div class="text-sm font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wide mb-2">{{ campaign.category }}</div>
           <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">{{ campaign.title }}</h1>
@@ -50,13 +55,389 @@
 
           <!-- Action Buttons -->
           <div class="flex flex-col sm:flex-row gap-3">
-            <button class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200" (click)="goBack()">
-              Back this project
-            </button>
-            <button class="bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 px-6 py-3 rounded-lg font-semibold transition-colors duration-200" (click)="shareCampaign()">
+              <!-- <button class="bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 px-6 py-3 rounded-lg font-semibold transition-colors duration-200" (click)="shareCampaign()">
               Share
-            </button>
+            </button> -->
+            @if (walletState.address?.toLowerCase() !== campaign.owner.toLowerCase()) {
+              <!-- fund -->
+                @if(campaign.status === 0 ){
+                    <button  class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200" 
+                      (click)="doFunding(fundInput.value)"
+                    >
+                      Fund
+                    </button>
+                  <input
+                    #fundInput
+                    type="number"
+                    [value]="campaign.minAmount"
+                    placeholder="Amount"
+                    [min]="campaign.minAmount"
+                    [max]="campaign.goal - campaign.raised"
+                    class="w-full px-4 py-3 rounded-lg
+                          bg-white dark:bg-gray-700
+                          border border-gray-300 dark:border-gray-600
+                          text-gray-900 dark:text-white
+                          focus:ring-2 focus:ring-blue-500"
+                  />
+                }
+                <!-- voting -->
+                @else if(campaign.status === 1){
+                  @if(campaign.votingRaised >0 ){
+                      @if(votingResults()[0].status == 0){
+                        <div class="w-full p-5 rounded-xl border 
+                          bg-yellow-50 border-yellow-200 
+                          dark:bg-yellow-900/20 dark:border-yellow-700">
+      
+                          <!-- Info Message -->
+                          <div class="text-center mb-4">
+                            <p class="text-sm text-yellow-800 dark:text-yellow-300 font-medium">
+                              The campaign owner has requested to withdraw the raised funds.
+                            </p>
+                            <p class="text-xs text-yellow-700 dark:text-yellow-400 mt-1">
+                              Please cast your vote to approve or reject this request.
+                            </p>
+                          </div>
+      
+                          <!-- Voting Buttons -->
+                          <div class="flex gap-4">
+      
+                            <!-- Approve Button -->
+                            <button 
+                              (click)="vote(true)"
+                              class="flex-1 bpx-4 py-2 bg-indigo-600 hover:bg-indigo-700 
+                              text-white px-6 py-3 rounded-lg font-semibold rounded-lg transition">
+                              Approve
+                            </button>
+                            <!-- Reject Button -->
+                            <button 
+                              (click)="vote(false)"
+                              class="flex-1 bg-red-600 hover:bg-red-700 
+                                    dark:bg-red-500 dark:hover:bg-red-600
+                                    text-white px-6 py-3 rounded-lg font-semibold 
+                                    transition-all duration-200 shadow-md">
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      }
+                      @else if(votingResults()[0].status == 2){
+                        <div class="rounded-xl border border-gray-200 dark:border-gray-700 
+                                    bg-gray-50 dark:bg-gray-800/40 p-6 text-center">
+
+                          <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                            Withdrawal Proposal Rejected
+                          </h4>
+
+                          <p class="text-sm text-gray-600 dark:text-gray-400">
+                            The previous withdrawal request was rejected by the backers.
+                          </p>
+
+                          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                            There is currently no active withdrawal proposal.
+                          </p>
+                          
+                        </div>
+
+                      }
+                  }@else {
+                    <div class="rounded-xl border border-blue-200 dark:border-blue-700 
+                        bg-blue-50 dark:bg-blue-900/20 p-6 text-center">
+                        <h4 class="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-2">
+                          Campaign Successfully Funded 🎉
+                        </h4>
+                        <p class="text-sm text-blue-800 dark:text-blue-400">
+                          The funding goal has been reached. 
+                          The campaign owner has not yet initiated a withdrawal request.
+                        </p>
+                        <p class="text-xs text-blue-700 dark:text-blue-500 mt-2">
+                          Once a withdrawal proposal is created, you will be able to cast your vote.
+                        </p>
+                    </div>
+
+                  }
+
+
+                } 
+                <!-- withdraw content -->
+                @else if(campaign.status === 2 ){
+                    <div class="w-full py-4 px-5 rounded-lg 
+                                bg-green-100 dark:bg-green-800 
+                                text-green-800 dark:text-green-200 
+                                text-center font-semibold">
+
+                      Withdrawal Proposal Approved
+
+                      <p class="text-sm font-normal mt-2">
+                        The withdrawal request has been approved.
+                        The campaign owner may now withdraw the funds.
+                      </p>
+
+                    </div>
+
+                }
+                <!-- refund -->
+                @else if(campaign.status === 3 ){
+                  <div class="flex flex-col items-center gap-4 w-full">
+
+                    <!-- Status Message -->
+                    <div class="w-full py-3 px-4 rounded-lg 
+                                bg-red-100 dark:bg-red-800 
+                                text-red-800 dark:text-red-200 
+                                font-semibold text-center">
+
+                      This campaign has been rejected by backers.
+
+                    </div>
+
+                    <!-- Refund Button -->
+                    <button 
+                      (click)="refund()"
+                      class="self-center bg-blue-600 hover:bg-blue-700 
+                            dark:bg-blue-500 dark:hover:bg-blue-600 
+                            text-white px-6 py-3 rounded-lg 
+                            font-semibold transition-colors duration-200">
+
+                      Claim Refund
+
+                    </button>
+
+                  </div>
+
+                }
+                <!-- completed -->
+                @else if(campaign.status === 4 ){
+                    <div class="w-full py-5 px-6 rounded-xl 
+                                  bg-green-100 dark:bg-green-800 
+                                  text-green-800 dark:text-green-200 
+                                  text-center">
+
+                        <h4 class="text-lg font-semibold">
+                          Campaign Successfully Funded 🎉
+                        </h4>
+
+                        <p class="text-sm mt-2">
+                          The campaign reached its goal and the funds have been 
+                          released to the campaign owner.
+                        </p>
+
+                      </div>
+                }
+                <!-- Failed -->
+                @else if(campaign.status == 5){
+                  <!-- <div class="w-full py-4 px-5 rounded-lg 
+                              bg-red-100 dark:bg-red-800 
+                              text-red-800 dark:text-red-200 
+                              text-center font-semibold">
+
+                        Campaign Failed
+
+                      <p class="text-sm font-normal mt-2">
+                        All contributions have been refunded.
+                        This campaign is now permanently closed.
+                      </p>
+                    </div> -->
+                    <div class="w-full py-5 px-6 rounded-xl 
+            bg-red-100 dark:bg-red-800 
+            text-red-800 dark:text-red-200 
+            text-center">
+
+  <h4 class="text-lg font-semibold">
+    Campaign Unsuccessful
+  </h4>
+
+  <p class="text-sm mt-2">
+    The campaign has ended without success.
+    All contributions have been refunded.
+  </p>
+
+</div>
+
+                }
+            }
+            @else if (walletState.address?.toLowerCase() === campaign.owner.toLowerCase()) {
+              <!-- ask investores / raise vote for take campaign amount  -->
+              @if (campaign.raised >= campaign.goal && campaign.votingRaised === 0) {
+                <div class="rounded-xl border border-indigo-200 dark:border-indigo-700 
+                            bg-indigo-50 dark:bg-indigo-900/20 p-6">
+
+                  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+                    <!-- Left Content -->
+                    <div>
+                      <h4 class="text-lg font-semibold text-indigo-900 dark:text-indigo-300">
+                        Campaign Fully Funded 🎉
+                      </h4>
+
+                      <p class="text-sm text-indigo-800 dark:text-indigo-400 mt-1">
+                        Your campaign has successfully reached its funding goal.
+                        You can now initiate a withdrawal proposal for investor voting.
+                      </p>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button 
+                      (click)="raiseVote()"
+                      class="bg-indigo-600 hover:bg-indigo-700 
+                            dark:bg-indigo-500 dark:hover:bg-indigo-600 
+                            text-white px-6 py-3 rounded-lg font-semibold 
+                            transition-all duration-200 shadow-md">
+
+                      Initiate Withdrawal Vote
+
+                    </button>
+
+                  </div>
+
+                </div>
+              }
+              @else if(campaign.status === 1 && campaign.votingRaised >0){
+                  @if(votingResults()[0]?.status === 2){
+                      <div class="rounded-xl border border-red-200 dark:border-red-700 
+                            bg-red-50 dark:bg-red-900/20 p-6 text-center">
+                          <h4 class="text-lg font-semibold text-red-800 dark:text-red-300 mb-2">
+                            Withdrawal Proposal Rejected
+                          </h4>
+
+                          <p class="text-sm text-red-700 dark:text-red-400">
+                            The investors have rejected the withdrawal request.
+                          </p>
+
+                          <p class="text-xs text-red-600 dark:text-red-400 mt-2">
+                            You may submit a new withdrawal proposal if you have remaining attempts.
+                          </p>
+                      </div>
+
+                     <button 
+                        (click)="raiseVote()"
+                        class="self-start mt-4 bg-indigo-600 hover:bg-indigo-700 
+                              text-white px-5 py-2.5 rounded-lg 
+                              text-sm font-semibold transition">
+
+                        Submit New Proposal
+                      </button>
+
+
+
+                  }
+                  @else{
+                    <div class="text-center w-full py-3 px-4 rounded-lg bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 font-semibold">Waiting for Investors' Vote to Release Funds.</div>
+                    
+                  }
+              }
+              <!-- can withdraw -->
+              @else if(campaign.status === 2){
+                <div class="flex flex-col items-center gap-4 w-full">
+                  <div class="w-full py-4 px-5 rounded-lg 
+                              bg-green-100 dark:bg-green-800 
+                              text-green-800 dark:text-green-200 
+                              text-center font-semibold">
+
+                    Withdrawal Proposal Approved
+
+                    <p class="text-sm font-normal mt-2">
+                      Backers have approved your withdrawal request.
+                      You may now withdraw the funds.
+                    </p>
+
+                  </div>
+                  <button 
+                    (click)="withdrawFunds()"
+                    class="bg-green-600 hover:bg-green-700 
+                          text-white px-6 py-3 rounded-lg 
+                          font-semibold transition">
+
+                    Withdraw Funds
+
+                  </button>
+                </div>
+
+              }
+              <!-- refund -->
+              @else if(campaign.status === 3){
+                <div class="flex flex-col gap-4 w-full">
+                  <!-- Status Card -->
+                  <div class="w-full py-4 px-5 rounded-lg 
+                              bg-red-100 dark:bg-red-800 
+                              text-red-800 dark:text-red-200 
+                              font-semibold text-center">
+
+                    Withdrawal Proposal Rejected
+
+                    <p class="text-sm font-normal mt-2">
+                      The withdrawal request was rejected by backers. 
+                      Funds cannot be released.
+                    </p>
+
+                  </div>
+                  <!-- Info Section -->
+                  <div class="text-sm text-gray-600 dark:text-gray-400 text-center">
+
+                    Backers are now eligible to claim refunds.
+
+                  </div>
+                </div>
+              }
+              <!-- completed -->
+              @else if (campaign.status === 4) {
+                <div class="w-full py-5 px-6 rounded-xl 
+                  bg-green-100 dark:bg-green-800 
+                  text-green-800 dark:text-green-200 
+                  text-center">
+
+                  <h4 class="text-lg font-semibold">
+                    Campaign Successfully Completed 🎉
+                  </h4>
+
+                  <p class="text-sm mt-2">
+                    Your campaign has been successfully funded and the approved funds 
+                    have been transferred to your wallet.
+                  </p>
+                </div>
+              }
+              <!-- failed -->
+              @else if(campaign.status === 5){
+                <!-- <div class="w-full py-4 px-5 rounded-lg 
+                              bg-red-100 dark:bg-red-800 
+                              text-red-800 dark:text-red-200 
+                              text-center font-semibold">
+
+                    Campaign Failed
+
+                    <p class="text-sm font-normal mt-2">
+                      All contributions have been refunded.
+                      This campaign is now permanently closed.
+                    </p>
+
+                  </div> -->
+                  <div class="w-full py-5 px-6 rounded-xl 
+            bg-red-100 dark:bg-red-800 
+            text-red-800 dark:text-red-200 
+            text-center">
+
+  <h4 class="text-lg font-semibold">
+    Campaign Closed – Unsuccessful
+  </h4>
+
+  <p class="text-sm mt-2">
+    This campaign did not meet the required conditions.
+    All contributions have been refunded to backers.
+  </p>
+
+</div>
+
+
+              }
+            }
           </div>
+          @if(campaign.status === 0) {
+            <!-- Allowed Range Info -->
+            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+              Allowed range:
+              <span class="font-medium text-green-600">{{ campaign.minAmount }} ETH</span>
+              →
+              <span class="font-medium text-blue-600">{{ campaign.goal - campaign.raised }} ETH</span>
+            </p>
+          }
         </div>
       </div>
     </div>
@@ -73,19 +454,19 @@
             <div class="flex">
               <button
                 class="flex-1 px-6 py-4 text-center font-medium transition-colors duration-200"
-                [class]="activeTab() === 'story'
+                [class]="activeTab() === 'PDF'
                   ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
-                (click)="setActiveTab('story')">
-                Story
+                (click)="setActiveTab('PDF')">
+                PDF
               </button>
-              <button
+              <!-- <button
                 class="flex-1 px-6 py-4 text-center font-medium transition-colors duration-200"
                 [class]="activeTab() === 'updates'
                   ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
                 (click)="setActiveTab('updates')">
-                Updates ({{ campaign.updates.length }})
+                Updates 
               </button>
               <button
                 class="flex-1 px-6 py-4 text-center font-medium transition-colors duration-200"
@@ -94,19 +475,44 @@
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'"
                 (click)="setActiveTab('faqs')">
                 FAQs
-              </button>
+              </button> -->
             </div>
           </div>
 
           <!-- Tab Content -->
-          <div class="p-6">
+          <div class=" relative w-full h-[600px] bg-gray-100 rounded-lg overflow-hidden">
+              <!-- 🔄 Loading Overlay -->
+               <div *ngIf="activeTab() === 'PDF'">
+                 @if(isPdfLoading()) {
+                    <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/80 z-10" >
+                      <!-- Spinner -->
+                      <div class="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+  
+                      <p class="mt-3 text-sm text-gray-600">
+                        Loading PDF, please wait...
+                      </p>
+                    </div>
+                 }
+                 @else {
+                    <iframe
+                      [src]="getSafePdfUrl(campaign.pdf)"
+                      width="100%"
+                      height="600px"
+                      style="border: none;"
+                    ></iframe>
+                 }
+               </div>
+              
+              
+
+
             <!-- Story Tab -->
-            <div *ngIf="activeTab() === 'story'">
-              <div class="prose dark:prose-invert max-w-none" [innerHTML]="campaign.fullDescription"></div>
-            </div>
+            <!-- <div *ngIf="activeTab() === 'story'"> -->
+              <!-- <div class="prose dark:prose-invert max-w-none" [innerHTML]="campaign.fullDescription"></div>
+            </div> -->
 
             <!-- Updates Tab -->
-            <div *ngIf="activeTab() === 'updates'">
+            <!-- <div *ngIf="activeTab() === 'updates'">
               <div class="space-y-6">
                 @for (update of campaign.updates; track update.id) {
                   <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
@@ -120,10 +526,10 @@
                   </div>
                 }
               </div>
-            </div>
+            </div> -->
 
             <!-- FAQs Tab -->
-            <div *ngIf="activeTab() === 'faqs'">
+            <!-- <div *ngIf="activeTab() === 'faqs'">
               <div class="space-y-6">
                 @for (faq of campaign.faqs; track faq.question) {
                   <div class="border-b border-gray-200 dark:border-gray-700 pb-6 last:border-b-0">
@@ -132,59 +538,148 @@
                   </div>
                 }
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
 
       <!-- Right Column -->
       <div class="space-y-6">
-        <!-- Creator Info -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme border border-gray-200 dark:border-gray-700 p-6">
-          <div class="flex items-start gap-4 mb-4">
-            <img [src]="campaign.creator.avatar" [alt]="campaign.creator.name" class="w-12 h-12 rounded-full object-cover">
-            <div class="flex-1">
-              <h3 class="font-semibold text-gray-900 dark:text-white">{{ campaign.creator.name }}</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">{{ campaign.creator.bio }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">{{ campaign.creator.location }}</p>
-            </div>
-          </div>
-          <div class="text-center">
-            <div class="text-2xl font-bold text-gray-900 dark:text-white">{{ campaign.creator.projects }}</div>
-            <div class="text-sm text-gray-600 dark:text-gray-400">projects</div>
-          </div>
-        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme 
+            border border-gray-200 dark:border-gray-700 p-6"
+            *ngIf="campaign.votingRaised > 0">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+              Withdrawal Voting History
+            </h3>
+            <div class="space-y-6">
+              <div *ngFor="let voteData of votingResults(); let i = index"
+                  class="p-5 rounded-lg border 
+                          border-gray-200 dark:border-gray-700 
+                          bg-gray-50 dark:bg-gray-700/40">
 
-        <!-- Rewards Section -->
-        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme border border-gray-200 dark:border-gray-700 p-6">
-          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">Support this project</h3>
-          <div class="space-y-4">
-            @for (reward of campaign.rewards; track reward.id) {
-              <div class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
-                <div class="flex justify-between items-start mb-2">
-                  <h4 class="font-semibold text-gray-900 dark:text-white">{{ reward.title }}</h4>
-                  <span class="text-lg font-bold text-blue-600 dark:text-blue-400">{{ formatCurrency(reward.amount) }}</span>
-                </div>
-                <p class="text-gray-600 dark:text-gray-300 text-sm mb-3">{{ reward.description }}</p>
-                <div class="space-y-2 mb-3">
-                  <div class="text-xs text-gray-600 dark:text-gray-400">
-                    Estimated delivery: {{ reward.estimatedDelivery }}
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-4">
+                  <div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white">
+                      Proposal #{{votingResults().length - i  }}
+                    </h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                      Withdrawal Amount
+                    </p>
                   </div>
-                  @if (reward.limited) {
-                    <div class="text-xs text-orange-600 dark:text-orange-400 font-medium">
-                      Limited ({{ reward.limit! - reward.backers }} left)
-                    </div>
-                  }
+
+                  <span class="text-sm font-semibold 
+                              text-indigo-600 dark:text-indigo-400">
+                    {{ formatCurrency(voteData.amount) }}
+                  </span>
                 </div>
-                <div class="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                  {{ reward.backers }} backers
+                <div class="w-full h-4 flex rounded-full overflow-hidden mb-3">
+                  <!-- YES -->
+                  <div class="bg-green-500 transition-all duration-500"
+                      [style.width.%]="voteData.yes">
+                  </div>
+                  <!-- REMAINING -->
+                  <div class="bg-gray-300 dark:bg-gray-600 transition-all duration-500"
+                      [style.width.%]="100 -(voteData.yes + voteData.no)">
+                  </div>
+                  <!-- NO -->
+                  <div class="bg-red-500 transition-all duration-500"
+                      [style.width.%]="voteData.no">
+                  </div>
+
                 </div>
-                <button
-                  class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white py-2 px-4 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  (click)="backProject(reward)"
-                  [disabled]="reward.limited && reward.limit! - reward.backers <= 0">
-                  Select this reward
-                </button>
+
+                <!-- Vote Counts -->
+                <div class="flex justify-between text-sm mt-2">
+                  <span class="text-green-600">Yes: {{ voteData.yes }}%</span>
+                  <span class="text-gray-500">Pending: {{ 100 -(voteData.yes + voteData.no) }}%</span>
+                  <span class="text-red-600">No: {{ voteData.no }}%</span>
+                </div>
+<div class="mt-4">
+  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full 
+               text-xs font-semibold"
+        [ngClass]="getStatusConfig(voteData.status).classes">
+
+    {{ getStatusConfig(voteData.status).label }}
+
+  </span>
+</div>
+
+              </div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-theme border border-gray-200 dark:border-gray-700 p-6">
+          <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
+            Backers List
+          </h3>
+          <div class="space-y-3 max-h-64 overflow-y-auto pr-2">
+            @if(backers().length){
+              <div 
+                *ngFor="let backer of backers(); let i = index"
+                class="flex items-center justify-between p-4 rounded-lg 
+                      bg-gray-50 dark:bg-gray-700/50 
+                      hover:bg-gray-100 dark:hover:bg-gray-700 
+                      transition-all duration-200"
+                      [ngClass]="{
+                        'ring-2 ring-yellow-400 bg-yellow-50 dark:bg-yellow-900/20': i === 0
+                      }"
+  
+                      >
+                <!-- Left Section -->
+                <div class="flex items-center gap-4">
+                  <!-- Rank Badge -->
+                  <!-- <div class="w-8 h-8 flex items-center justify-center 
+                              rounded-full bg-blue-600 text-white text-sm font-semibold">
+                    {{ i + 1 }}
+                  </div> -->
+                  <!-- Wallet Avatar -->
+                  <div class="w-10 h-10 flex items-center justify-center 
+                              rounded-full bg-gradient-to-br from-purple-500 to-blue-500 
+                              text-white font-bold">
+                    {{ backer.address.slice(2, 4).toUpperCase() }}
+                  </div>
+                  <!-- Address -->
+                  <div>
+                    <p class="font-medium text-gray-900 dark:text-white">
+                      {{ backer.address.slice(0, 6) + '...' + backer.address.slice(-4) }}
+                    </p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">
+                      Backer
+                    </p>
+                  </div>
+                </div>
+                <!-- Right Section (Amount) -->
+                <div class="text-right">
+                  <p class="font-semibold text-green-600 dark:text-green-400">
+                    {{ formatCurrency(backer.value) }}
+                  </p>
+                </div>
+              </div>
+            }
+            @else {
+              <div class="rounded-xl border border-dashed 
+              border-gray-300 dark:border-gray-600 
+              bg-gray-50 dark:bg-gray-700/30 
+              p-8 text-center">
+
+                <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                  No Backers Yet
+                </h4>
+                @if(campaign.owner.toLowerCase() === walletState.address?.toLowerCase()){
+                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Your campaign is live but hasn’t received any backers yet.
+                    Share your campaign to attract supporters.
+                  </p>
+
+                }
+                @else {
+                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                    This campaign hasn’t received any contributions yet.
+                    Start the momentum by becoming the first backer.
+                  </p>
+                }
+
+
               </div>
             }
           </div>
@@ -193,3 +688,16 @@
     </div>
   </div>
 </div>
+<!-- <p-toast></p-toast> -->
+<!-- <p-toast 
+  [showTransitionOptions]="'250ms'" 
+  [showTransformOptions]="'translateX(100%)'" 
+  [hideTransitionOptions]="'150ms'" 
+  [hideTransformOptions]="'translateX(100%)'" 
+/> -->
+<p-toast
+  [showTransformOptions]="'translateX(100%)'"
+  [hideTransformOptions]="'translateX(100%)'"
+  [showTransitionOptions]="'300ms ease-out'"
+  [hideTransitionOptions]="'200ms ease-in'"
+/>

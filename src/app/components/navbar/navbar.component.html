@@ -1,197 +1,225 @@
-<nav
-  class="bg-white dark:bg-gray-800 shadow-lg border-b border-gray-200 dark:border-gray-700 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between h-16">
-      <!-- Logo -->
-      <div class="flex items-center">
-        <div class="flex-shrink-0">
-          <a routerLink="/" routerLinkActive="text-blue-600 dark:text-blue-400"
-            [routerLinkActiveOptions]="{exact: true}"
-            class="text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-            Logo
-          </a>
+<nav class="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/90">
+  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <!-- Brand -->
+    <a
+      routerLink="/"
+      routerLinkActive="opacity-100"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="flex items-center gap-2 transition-opacity hover:opacity-90"
+      aria-label="Go to home"
+    >
+      <img src="assets/logo.png" alt="CrowdFunding Logo" class="h-8 w-auto" />
+    </a>
 
-        </div>
-      </div>
+    <!-- Desktop Nav Pills -->
+    <div class="hidden md:flex md:items-center md:gap-2">
+      <a
+        routerLink="/explorer"
+        routerLinkActive="bg-blue-600 text-white shadow-sm dark:bg-blue-500 dark:text-white"
+        class="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+      >
+        Explorer
+      </a>
 
-      <!-- Navigation Links -->
-      <div class="hidden md:flex items-center space-x-8">
-        <a routerLink="/" routerLinkActive="text-blue-600 dark:text-blue-400" [routerLinkActiveOptions]="{exact: true}"
-          class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-          Home
-        </a>
-        <a routerLink="/explorer" routerLinkActive="text-blue-600 dark:text-blue-400"
-          class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-          Explorer
-        </a>
-        <a routerLink="/dashboard" routerLinkActive="text-blue-600 dark:text-blue-400"
-          class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-          Dashboard
-        </a>
-        <a routerLink="/create-campaign" routerLinkActive="text-blue-600 dark:text-blue-400"
-          class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-          Create Campaign
-        </a>
-        <a routerLink="/about" routerLinkActive="text-blue-600 dark:text-blue-400"
-          class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium transition-colors">
-          About
-        </a>
-      </div>
+      <a
+        routerLink="/my-campaigns"
+        routerLinkActive="bg-blue-600 text-white shadow-sm dark:bg-blue-500 dark:text-white"
+        class="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+      >
+        My Campaigns
+      </a>
 
-      <!-- Theme Toggle & Connect Button -->
-      <div class="flex items-center space-x-4">
-        <!-- Theme Toggle Button -->
-        <button (click)="toggleTheme()"
-          class="p-2 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-          [attr.aria-label]="isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
-          <!-- Sun Icon (Light Mode) -->
-          <svg *ngIf="!isDarkMode()" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
-          <!-- Moon Icon (Dark Mode) -->
-          <svg *ngIf="isDarkMode()" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-          </svg>
-        </button>
+      <a
+        routerLink="/my-contributions"
+        routerLinkActive="bg-blue-600 text-white shadow-sm dark:bg-blue-500 dark:text-white"
+        class="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+      >
+        My Contributions
+      </a>
 
-        <!-- Connect Button -->
-        <button data-wallet-button
-          class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-          (click)="walletState.isConnected ? disconnetWallet() :connectWallet()"
-          *ngIf="walletServices.walletState$Observable| async as walletState"
-          >
-          {{walletState.isConnected ?(walletState.address | slice :0:6)+'...'+(walletState.address | slice : -4) : 'connect'}}
-        </button>
-      </div>
-
-      <!-- Mobile menu button -->
-      <div class="md:hidden flex items-center">
-        <button (click)="toggleMobileMenu()"
-          class="bg-gray-100 dark:bg-gray-700 inline-flex items-center justify-center p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-colors">
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path *ngIf="!isMobileMenuOpen()" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"></path>
-            <path *ngIf="isMobileMenuOpen()" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
-        </button>
-      </div>
+      <a
+        routerLink="/create-campaign"
+        routerLinkActive="bg-blue-600 text-white shadow-sm dark:bg-blue-500 dark:text-white"
+        class="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+      >
+        Launch Campaign
+      </a>
+      <!-- <a
+        routerLinkActive="bg-blue-600 text-white shadow-sm dark:bg-blue-500 dark:text-white"
+        class="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+        (click)="signedMessage()"
+        >
+        temp
+      </a> -->
     </div>
 
-    <!-- Mobile Navigation Menu -->
-    <div *ngIf="isMobileMenuOpen()" class="md:hidden">
-      <div
-        class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
-        <a routerLink="/" routerLinkActive="bg-gray-200 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-          [routerLinkActiveOptions]="{exact: true}"
-          class="text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 block px-3 py-2 rounded-md text-base font-medium transition-colors"
-          (click)="closeMobileMenu()">
-          Home
-        </a>
-        <a routerLink="/explorer" routerLinkActive="bg-gray-200 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-          class="text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 block px-3 py-2 rounded-md text-base font-medium transition-colors"
-          (click)="closeMobileMenu()">
-          Explorer
-        </a>
-        <a routerLink="/dashboard" routerLinkActive="bg-gray-200 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-          class="text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 block px-3 py-2 rounded-md text-base font-medium transition-colors"
-          (click)="closeMobileMenu()">
-          Dashboard
-        </a>
-        <a routerLink="/create-campaign"
-          routerLinkActive="bg-gray-200 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-          class="text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 block px-3 py-2 rounded-md text-base font-medium transition-colors"
-          (click)="closeMobileMenu()">
-          Create Campaign
-        </a>
-        <a routerLink="/about" routerLinkActive="bg-gray-200 dark:bg-gray-600 text-blue-600 dark:text-blue-400"
-          class="text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 block px-3 py-2 rounded-md text-base font-medium transition-colors"
-          (click)="closeMobileMenu()">
-          About
-        </a>
-        <div class="pt-2 space-y-2">
-          <!-- Mobile Theme Toggle -->
-          <button (click)="toggleTheme()"
-            class="w-full bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-white px-4 py-2 rounded-md text-base font-medium transition-colors">
-            {{ isDarkMode() ? 'Light Mode' : 'Dark Mode' }}
-          </button>
-          <!-- Mobile Connect Button -->
-          <button
-            class="w-full bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-4 py-2 rounded-md text-base font-medium transition-colors"
-            (click)="walletState.isConnected ? disconnetWallet() :connectWallet()"
-          *ngIf="walletServices.walletState$Observable| async as walletState">
-          
-          {{walletState.isConnected ?(walletState.address | slice :0:6)+'...'+(walletState.address | slice : -4) : 'connect'}}
-          </button>
-        </div>
+    <!-- Desktop Actions -->
+    <div class="hidden items-center gap-3 md:flex">
+      <button
+        (click)="toggleTheme()"
+        class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-slate-100 p-2 text-slate-700 transition-colors hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+        [attr.aria-label]="isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'"
+      >
+        <svg *ngIf="!isDarkMode()" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <svg *ngIf="isDarkMode()" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      </button>
+
+      <button
+        data-wallet-button
+        *ngIf="walletServices.walletState$Observable | async as walletState"
+        (click)="walletState.isConnected ? disconnetWallet() : connectWallet()"
+        class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+      >
+        {{ walletState.isConnected ? (walletState.address | slice:0:6) + '...' + (walletState.address | slice:-4) : 'Connect' }}
+      </button>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button
+      (click)="toggleMobileMenu()"
+      class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-slate-100 p-2 text-slate-700 transition-colors hover:bg-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 md:hidden dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+      [attr.aria-expanded]="isMobileMenuOpen()"
+      aria-label="Toggle navigation menu"
+    >
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path *ngIf="!isMobileMenuOpen()" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        <path *ngIf="isMobileMenuOpen()" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Panel -->
+  <div *ngIf="isMobileMenuOpen()" class="border-t border-slate-200 bg-white px-4 pb-4 pt-3 md:hidden dark:border-slate-800 dark:bg-slate-950">
+    <div class="flex flex-col gap-1">
+      <a
+        routerLink="/explorer"
+        routerLinkActive="bg-blue-600 text-white dark:bg-blue-500 dark:text-white"
+        (click)="closeMobileMenu()"
+        class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+      >
+        Explorer
+      </a>
+
+      <a
+        routerLink="/my-campaigns"
+        routerLinkActive="bg-blue-600 text-white dark:bg-blue-500 dark:text-white"
+        (click)="closeMobileMenu()"
+        class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+      >
+        My Campaigns
+      </a>
+
+      <a
+        routerLink="/my-contributions"
+        routerLinkActive="bg-blue-600 text-white dark:bg-blue-500 dark:text-white"
+        (click)="closeMobileMenu()"
+        class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+      >
+        My Contributions
+      </a>
+
+      <a
+        routerLink="/create-campaign"
+        routerLinkActive="bg-blue-600 text-white dark:bg-blue-500 dark:text-white"
+        (click)="closeMobileMenu()"
+        class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+      >
+        Launch Campaign
+      </a>
+
+      <div class="mt-2 grid grid-cols-2 gap-2">
+        <button
+          (click)="toggleTheme()"
+          class="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+        >
+          {{ isDarkMode() ? 'Light Mode' : 'Dark Mode' }}
+        </button>
+
+        <button
+          *ngIf="walletServices.walletState$Observable | async as walletState"
+          (click)="walletState.isConnected ? disconnetWallet() : connectWallet()"
+          class="rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+        >
+          {{ walletState.isConnected ? (walletState.address | slice:0:6) + '...' + (walletState.address | slice:-4) : 'Connect' }}
+        </button>
       </div>
     </div>
   </div>
 </nav>
 
 <!-- Wallet Selection Modal -->
-<!-- Desktop Modal (Dropdown style) -->
-<div *ngIf="isWalletModalOpen()" class="hidden md:block wallet-modal fixed top-20 right-6 z-50">
-  <div
-    class="wallet-modal-content bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 w-80 max-h-96 overflow-hidden animate-fade-in-down">
-    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+<div *ngIf="isWalletModalOpen()" class="hidden md:block wallet-modal fixed right-6 top-20 z-50">
+  <div class="wallet-modal-content w-80 max-h-96 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800">
+    <div class="border-b border-gray-200 p-4 dark:border-gray-700">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Connect Wallet</h3>
-      <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">Choose your preferred wallet to connect</p>
+      <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Choose your preferred wallet to connect</p>
     </div>
-    <div class="max-h-80 overflow-y-auto">
-      <div class="p-2">
-        <div *ngFor="let wallet of walletOptions"
-                 class="wallet-option flex items-center p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
-                 (click)="selectWallet(wallet)">
-              <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-xl mr-3">
-                <img [src]="wallet.icon" width="24" height="24" />
-              </div>
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900 dark:text-white">{{ wallet.name }}</p>
-              </div>
-              <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-              </svg>
-            </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Mobile Modal (Bottom Sheet) -->
-<div *ngIf="isWalletModalOpen()" class="md:hidden fixed inset-0 z-50">
-  <!-- Mobile Overlay -->
-  <div class="fixed inset-0 bg-black bg-opacity-50 animate-fade-in" (click)="closeWalletModal()"></div>
-
-  <!-- Bottom Sheet -->
-  <div
-    class="wallet-modal-content fixed inset-x-0 bottom-0 bg-white dark:bg-gray-800 rounded-t-2xl shadow-xl border-t border-gray-200 dark:border-gray-700 animate-slide-up max-h-96">
-    <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-      <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-4"></div>
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white text-center">Connect Wallet</h3>
-      <p class="text-sm text-gray-600 dark:text-gray-400 text-center mt-1">Choose your preferred wallet to connect</p>
-    </div>
-    <div class="overflow-y-auto max-h-80">
-      <div class="p-4 space-y-2">
-        <div *ngFor="let wallet of walletOptions"
-          class="wallet-option flex items-center p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors border border-gray-100 dark:border-gray-700"
-          (click)="selectWallet(wallet)">
-          <div
-            class="flex-shrink-0 w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-2xl mr-4">
-            <!-- {{ wallet.icon }} -->
-            <img [src]="wallet.icon" width="24" height="24" />
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="text-base font-medium text-gray-900 dark:text-white">{{ wallet.name }}</p>
-            <!-- <p class="text-sm text-gray-500 dark:text-gray-400">{{ wallet.description }}</p> -->
-          </div>
-          <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
+    <div class="max-h-80 overflow-y-auto p-2">
+      <div
+        *ngFor="let wallet of walletOptions"
+        class="wallet-option flex items-center rounded-lg p-3 transition-colors"
+        [class.cursor-pointer]="wallet.enabled"
+        [class.opacity-50]="!wallet.enabled"
+        [class.hover:bg-gray-50]="wallet.enabled"
+        [class.dark:hover:bg-gray-700]="wallet.enabled"
+        (click)="wallet.enabled && selectWallet(wallet)"
+      >
+        <div class="mr-3 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+          <img [src]="wallet.icon" width="24" height="24" />
         </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-gray-900 dark:text-white">{{ wallet.name }}</p>
+          <p *ngIf="!wallet.enabled" class="text-xs text-gray-400">Soon!</p>
+        </div>
+        <svg *ngIf="wallet.enabled" class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
       </div>
     </div>
   </div>
 </div>
+
+<div *ngIf="isWalletModalOpen()" class="fixed inset-0 z-50 md:hidden">
+  <div class="fixed inset-0 bg-black/50" (click)="closeWalletModal()"></div>
+  <div class="wallet-modal-content fixed inset-x-0 bottom-0 max-h-96 rounded-t-2xl border-t border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800">
+    <div class="border-b border-gray-200 p-4 dark:border-gray-700">
+      <div class="mx-auto mb-4 h-1 w-12 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+      <h3 class="text-center text-lg font-semibold text-gray-900 dark:text-white">Connect Wallet</h3>
+      <p class="mt-1 text-center text-sm text-gray-600 dark:text-gray-400">Choose your preferred wallet to connect</p>
+    </div>
+    <div class="max-h-80 overflow-y-auto p-4">
+      <div
+        *ngFor="let wallet of walletOptions"
+        class="wallet-option mb-2 flex items-center rounded-lg border border-gray-100 p-4 transition-colors dark:border-gray-700"
+        [class.cursor-pointer]="wallet.enabled"
+        [class.opacity-50]="!wallet.enabled"
+        [class.hover:bg-gray-50]="wallet.enabled"
+        [class.dark:hover:bg-gray-700]="wallet.enabled"
+        (click)="wallet.enabled && selectWallet(wallet)"
+      >
+        <div class="mr-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700">
+          <img [src]="wallet.icon" width="24" height="24" />
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-base font-medium text-gray-900 dark:text-white">{{ wallet.name }}</p>
+          <p *ngIf="!wallet.enabled" class="text-xs text-gray-400">Soon!</p>
+        </div>
+        <svg *ngIf="wallet.enabled" class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+<p-toast
+  [showTransformOptions]="'translateX(100%)'"
+  [hideTransformOptions]="'translateX(100%)'"
+  [showTransitionOptions]="'300ms ease-out'"
+  [hideTransitionOptions]="'200ms ease-in'"
+/>

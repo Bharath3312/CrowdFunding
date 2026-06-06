@@ -4,12 +4,14 @@ import { CommonModule } from '@angular/common';
 import { ThemeService } from '../../services/theme.service';
 import { EvmWalletServices } from '../../services/evm-wallet.services';
 import { WalletProvider } from '../../models/wallet-provider.model';
+import { ToastModule } from 'primeng/toast';
+import { ButtonModule } from 'primeng/button';
 
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, CommonModule],
+  imports: [RouterLink, RouterLinkActive, CommonModule,ToastModule,ButtonModule],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.css']
 })
@@ -43,6 +45,7 @@ export class NavbarComponent {
   
   closeWalletModal = () => this.isWalletModalOpen.set(false);
   
+
 
   async selectWallet(wallet: WalletProvider) {
     console.log(`Connecting to ${wallet.name}`);
