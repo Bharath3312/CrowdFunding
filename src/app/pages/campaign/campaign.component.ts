@@ -267,23 +267,29 @@ export class CampaignComponent implements OnInit {
     const backers = this.campaign()?.backers || 0;
     this.backers.set([]);
     await this.fetchCampaignData(); // Refresh campaign data
-    if((this.campaign()?.backers ?? 0)> backers && this.campaign()?.owner){
-      const firebaseData = await this.firebase.getUserData(`${this.campaign()?.owner}_${this.walletState.chainId}`);
-      if(firebaseData){
-        this.firebase.incrementUserStat(
-          `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalBackers', 1);
-          this.firebase.incrementUserStat(
-            `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalRaised', value);
-          // this.firebase.updateUserData(
-          //   `${this.campaign()?.owner}_${this.walletState.chainId}`, {
-          //     backers : firebaseData?.['backers'] ? [...(firebaseData['backers']), this.walletState.address] : [this.walletState.address]
-          //   }
-          // )
-      }
+    // if((this.campaign()?.backers ?? 0) > backers){
+    //   await this.firebase.updateContribution(`${this.walletState.address}_${this.walletState.chainId}`, this.campaignAddress as string ,value);
+    //   await this.firebase.incrementUserCampaignStat(
+    //     `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalBackers', 1);
+    // }
+    //   await this.firebase.incrementUserCampaignStat(
+    //   `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalRaised', value);
+    
+    // if((this.campaign()?.backers ?? 0)> backers && this.campaign()?.owner){
+    //   const firebaseData = await this.firebase.getUserData(`${this.campaign()?.owner}_${this.walletState.chainId}`);
+    //   if(firebaseData){
+    //     this.firebase.incrementUserStat(
+    //       `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalBackers', 1);
+    //       this.firebase.incrementUserStat(
+    //         `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalRaised', value);
+    //       // this.firebase.updateUserData(
+    //       //   `${this.campaign()?.owner}_${this.walletState.chainId}`, {
+    //       //     backers : firebaseData?.['backers'] ? [...(firebaseData['backers']), this.walletState.address] : [this.walletState.address]
+    //       //   }
+    //       // )
+    //   }
 
-    }
-     
-      
+    // }
   }
   refund(){
       console.log("ahh refunduuuu");

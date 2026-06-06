@@ -501,20 +501,20 @@ export class ContractService {
 
 
   async createCampaign(data: any) {
-    try {
-      const contract = await this.getFactoryContract();
-      const tx = await contract['createCampaign'](
-        data.title,
-        data.description,
-        data.imgUrl,
-        data.pdfUrl,
-        data.minAmount,
-        data.maxAmount,
-        data.fundingType,
-        data.category,
-        data.deadline
-      );
-      const receipts =  await tx.wait();
+	try {
+	  const contract = await this.getFactoryContract();
+	  const tx = await contract['createCampaign'](
+		data.title,
+		data.description,
+		data.imgUrl,
+		data.pdfUrl,
+		data.minAmount,
+		data.maxAmount,
+		data.fundingType,
+		data.category,
+		data.deadline
+	  );
+	  const receipts =  await tx.wait();
 	  const iface = contract.interface;
 	  let campaignAddress;
 	for(const log of receipts.logs){
@@ -524,17 +524,18 @@ export class ContractService {
 				campaignAddress = parsedLog.args[0];
 				const owner = parsedLog.args[1];
 				console.log('New Campaign Address:', campaignAddress);
-      			console.log('Creator:', owner);
+				console.log('Creator:', owner);
 				// return {campaignAddress,owner}
 			}
 		} catch(err){
 			// console.log("Error parsing log",err);
 		}
 	}
-	return campaignAddress;
-    } catch (error) {
-      console.log(error , "contractServicessss");
-    }
+	return {campaignAddress};
+	} catch (error) {
+	  console.log(error , "contractServicessss");
+	  return { campaignAddress: undefined };
+	}
   }
 
   async getAllCampaigns() {

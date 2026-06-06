@@ -19,11 +19,11 @@ export const routes: Routes = [
   //   path: 'explorer',
   //   loadComponent: () => import('./pages/explorer/explorer.component').then(m => m.ExplorerComponent)
   // },
-  {
-    path: 'dashboard',
-    canActivate: [connectWalletGuard],
-    loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent)
-  },
+  // {
+  //   path: 'dashboard',
+  //   canActivate: [connectWalletGuard],
+  //   loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent)
+  // },
   {
     path: 'create-campaign',
     canActivate: [connectWalletGuard],
@@ -44,6 +44,52 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/connect-wallet/connect-wallet.component').then(m => m.ConnectWalletComponent)
   },
 
+  // {
+  // path: 'dashboard',
+  // canActivate: [connectWalletGuard],
+  // loadComponent: () =>
+  //   import('./pages/dashboard-layout/dashboard-layout.component').then(
+  //     m => m.DashboardLayoutComponent
+  //   ),
+  // children: [
+  //    {
+  //     path: '',
+  //     pathMatch: 'full',
+  //     loadComponent: () =>
+  //       import('./pages/dashboard/dashboard.component').then(
+  //       m => m.DashboardComponent
+  //     ),
+  //   },
+  //   {
+  //     path: 'my-campaigns',
+  //     loadComponent: () =>
+  //       import('./pages/my-campaigns/my-campaigns.component').then(
+  //         m => m.MyCampaignsComponent
+  //       )
+  //   },
+  //   {
+  //     path: 'my-contributions',
+  //     loadComponent: () =>
+  //       import('./pages/my-contributions/my-contributions.component').then(
+  //         m => m.MyContributionsComponent
+  //       )
+  //   }
+  // ]
+  // },
+  {
+      path: 'my-campaigns',
+      loadComponent: () =>
+        import('./pages/my-campaigns/my-campaigns.component').then(
+          m => m.MyCampaignsComponent
+        )
+  },
+  {
+      path: 'my-contributions',
+      loadComponent: () =>
+        import('./pages/my-contributions/my-contributions.component').then(
+          m => m.MyContributionsComponent
+        )
+  },
   {
     path: '**',
     loadComponent: () => import('./pages/not-found-page/not-found-page.component').then(m => m.NotFoundPageComponent)

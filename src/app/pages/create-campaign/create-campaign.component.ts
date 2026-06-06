@@ -9,11 +9,11 @@ import { AbstractControl, ValidationErrors } from '@angular/forms';
 
 import { environment } from '../../../environments/environment';
 import { ethers } from 'ethers';
-import { FirebaseService } from '../../services/firebase.service';
 import { EvmWalletServices } from '../../services/evm-wallet.services';
 import { WalletState } from '../../models/wallet-provider.model';
 import { ToastService } from '../../services/toast.service';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ApiServiceService } from '../../services/api-service.service';
 
 export function maxWords(max: number) {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -51,10 +51,9 @@ export class CreateCampaignComponent {
   private ipfsService = inject(IpfsServciesService);
   private contractServices = inject(ContractService);
   private router = inject(Router);
-  private firebase = inject(FirebaseService);
   private toast = inject(ToastService);
   private walletServices = inject(EvmWalletServices)
-
+  private apiServices = inject(ApiServiceService)
   loading = signal(false);
 
   tomorrow = (() => {
@@ -241,39 +240,67 @@ export class CreateCampaignComponent {
         fundingType: payloadData.campaignFundingType,
         category: payloadData.campaignCategory,
         deadline: Math.floor(new Date(payloadData.campaignDeadline!).getTime() / 1000)
-      }).then(async (addr)=>{
-        console.log("Campaign created successfully",addr);
+      }).then(async (data)=>{
+        console.log("Campaign created successfully",data?.campaignAddress);
         this.loading.set(false);
+       const cData = await this.contractServices.getCampaignData(data?.campaignAddress);
+       console.log(cData,"data")
+        const storedData= {
+          campaignAddress : data?.campaignAddress,
+          title : cData.title,
+          description : cData.description,
+          imgUrl : cData.imageUrl,
+          pdfUrl : cData.pdfUrl,
+          owner : cData.owner,
+          minAmount : parseInt(ethers.formatEther(cData.minAmount)),
+          maxAmount : parseInt(ethers.formatEther(cData.maxAmount)), 
+          category : cData.category.toUpperCase(),
+          deadline : Number(cData.deadline),
+          fundingType : Number(cData.fundingType),
+          status : Number(cData.status)
+        }
+        console.log(storedData,"storedData..............");
+        this.apiServices.createCampaign(storedData).subscribe((response)=>{
+          console.log(response,"response from api after creating campaing");
+          if(response.success){
+            this.toast.success("Success","Campaign created successfully");
+            console.log(response?.data);
+            
+          }
+        }        ,(err)=>{
+          console.log("Error storing campaign data in backend",err);
+          this.toast.error("Error","Campaign created on blockchain but failed to store data in backend");
+        });
         // this.router.navigate(['/explorer']);
         // return;
-        const uid = `${this.walletState.address}_${this.walletState.chainId}`;
-        console.log(uid,"uid for firebase");
-        const data = await this.firebase.getUserData(uid)
+        // const uid = `${this.walletState.address}_${this.walletState.chainId}`;
+        // console.log(uid,"uid for firebase");
+        //   await this.firebase.addUserCampaign(uid, addr);
+        // const data = await this.firebase.getUserData(uid)
         // .pipe(take(1))
         // .subscribe((data)=>{
-          console.log(data,"userdata from fb after creating campaing");
-          if(!data) {
-            this.firebase.createUserData({
-                uid : uid,
-                walletAddress : this.walletState.address as string,
-                chainId : this.walletState.chainId as number,
-                totalRaised: 0,
-                totalBackers : 0,
-                totalSuccess : 0,
-                totalFailed : 0,
-                campaigns : [addr],
-                activeCampaigns : 1,
-                totalCampaign : 1
-             })
-          }else {
-            this.firebase.updateUserData(uid,{
-              totalCampaign : data['totalCampaign'] + 1,
-              activeCampaigns : data['activeCampaigns'] + 1,
-              campaigns : [...data['campaigns'] , addr]
-            })
-          }
+          // console.log(data,"userdata from fb after creating campaing");
+          // if(!data) {
+          //   this.firebase.createUserData({
+          //       uid : uid,
+          //       walletAddress : this.walletState.address as string,
+          //       chainId : this.walletState.chainId as number,
+          //       totalRaised: 0,
+          //       totalBackers : 0,
+          //       totalSuccess : 0,
+          //       totalFailed : 0,
+          //       campaigns : [addr],
+          //       activeCampaigns : 1,
+          //       totalCampaign : 1
+          //    })
+          // }else {
+          //   this.firebase.updateUserData(uid,{
+          //     totalCampaign : data['totalCampaign'] + 1,
+          //     activeCampaigns : data['activeCampaigns'] + 1,
+          //     campaigns : [...data['campaigns'] , addr]
+          //   })
+          // }
         // })
-       
         this.router.navigate(['/explorer']);
       }
       ).catch((err)=>{

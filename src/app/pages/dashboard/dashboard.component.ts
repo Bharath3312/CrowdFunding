@@ -211,21 +211,21 @@ export class DashboardComponent {
   }
 
   async getUserData() {
-     const user = await this.firebase.getUserData(`${this.walletState.address}_${this.walletState?.chainId}`)
+    //  const user = await this.firebase.getUserData(`${this.walletState.address}_${this.walletState?.chainId}`)
         
-     this.userData.set({
-          totalRaised: user?.['totalRaised'] || 0,
-          activeCampaigns: user?.['activeCampaigns'] || 0,
-          totalBackers: user?.['totalBackers'] || 0,
-          totalSuccess: user?.['totalSuccess'] || 0,
-          totalCampaign: user?.['campaigns'].length || 0,
-      });
-      if(user?.['campaigns']?.length){
-          this.getCampaignsData(user?.['campaigns'] || []);
-      }else{
-        this.campaigns.set([]);
-        this.loading.set(false);
-      }
+    //  this.userData.set({
+    //       totalRaised: user?.['totalRaised'] || 0,
+    //       activeCampaigns: user?.['activeCampaigns'] || 0,
+    //       totalBackers: user?.['totalBackers'] || 0,
+    //       totalSuccess: user?.['totalSuccess'] || 0,
+    //       totalCampaign: user?.['campaigns'].length || 0,
+    //   });
+    //   if(user?.['campaigns']?.length){
+    //       this.getCampaignsData(user?.['campaigns'] || []);
+    //   }else{
+    //     this.campaigns.set([]);
+    //     this.loading.set(false);
+    //   }
   }
 
   async getCampaignsData(campaigns: string[]) {
