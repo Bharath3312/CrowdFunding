@@ -242,7 +242,6 @@ export class CreateCampaignComponent {
         deadline: Math.floor(new Date(payloadData.campaignDeadline!).getTime() / 1000)
       }).then(async (data)=>{
         console.log("Campaign created successfully",data?.campaignAddress);
-        this.loading.set(false);
        const cData = await this.contractServices.getCampaignData(data?.campaignAddress);
        console.log(cData,"data")
         const storedData= {
@@ -260,17 +259,25 @@ export class CreateCampaignComponent {
           status : Number(cData.status)
         }
         console.log(storedData,"storedData..............");
-        this.apiServices.createCampaign(storedData).subscribe((response)=>{
-          console.log(response,"response from api after creating campaing");
-          if(response.success){
-            this.toast.success("Success","Campaign created successfully");
-            console.log(response?.data);
-            
+        this.apiServices.createCampaign(storedData).subscribe(
+          {
+            next :(response)=>{
+              console.log(response,"response from api after creating campaing");
+            this.loading.set(false);
+            if(response.success){
+              this.toast.success("Success","Campaign created successfully");
+              console.log(response?.data);
+              this.router.navigate(['/explorer']);
+              
+            }
+          },
+          error : (err)=>{
+            this.loading.set(false);
+            console.log("Error storing campaign data in backend",err);
+            this.toast.error("Error","Campaign created on blockchain but failed to store data in backend");
           }
-        }        ,(err)=>{
-          console.log("Error storing campaign data in backend",err);
-          this.toast.error("Error","Campaign created on blockchain but failed to store data in backend");
-        });
+          },
+      );
         // this.router.navigate(['/explorer']);
         // return;
         // const uid = `${this.walletState.address}_${this.walletState.chainId}`;
@@ -301,7 +308,6 @@ export class CreateCampaignComponent {
           //   })
           // }
         // })
-        this.router.navigate(['/explorer']);
       }
       ).catch((err)=>{
         console.log("Error creating campaign",err);

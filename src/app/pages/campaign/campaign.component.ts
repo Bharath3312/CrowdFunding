@@ -119,16 +119,16 @@ export class CampaignComponent implements OnInit {
           raised : parseInt(ethers.formatEther(campaignData.totalInvested)),
           goal : parseInt(ethers.formatEther(campaignData.maxAmount)),
           minAmount : parseInt(ethers.formatEther(campaignData.minAmount)),
-          backers : campaignData.totalInvestors.length ?? 0,
+          backers : 0 , //campaignData.totalInvestors.length ?? 0,
           category : campaignData.category.toUpperCase(),
           daysLeft : this.calculateDaysLeft(Number(campaignData.deadline)),
           fundingType : Number(campaignData.fundingType),
           votingRaised : Number(campaignData.totalRaisingVotes),
           status :Number(campaignData.status)
         }
-        if(campaignData.totalInvestors.length > 0){
-          this.getBackers(campaignData.totalInvestors);
-        }
+        // if(campaignData.totalInvestors.length > 0){
+        //   this.getBackers(campaignData.totalInvestors);
+        // }
         if(campaignData.totalRaisingVotes > 0){
           this.getVotingResults(Number(campaignData.totalRaisingVotes));
         }
