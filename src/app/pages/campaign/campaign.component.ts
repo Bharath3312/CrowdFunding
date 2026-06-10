@@ -12,7 +12,7 @@ import { FirebaseService } from '../../services/firebase.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { EvmWalletServices } from '../../services/evm-wallet.services';
 import { WalletState } from '../../models/wallet-provider.model';
-
+import { ApiServiceService } from '../../services/api-service.service';
 interface Campaign {
   id: number;
   title: string;
@@ -73,7 +73,7 @@ export class CampaignComponent implements OnInit {
   private firebase  = inject(FirebaseService)
   public contractService = inject(ContractService);
   private walletServices =  inject(EvmWalletServices)
-  
+  private apiService = inject(ApiServiceService);
   readonly currentTheme = this.themeService.theme;
   isPdfLoading = signal<boolean>(true);
   campaignAddress: string | null = null;
@@ -98,9 +98,47 @@ export class CampaignComponent implements OnInit {
     })
   }
   async ngOnInit() {    
-    this.fetchCampaignData();    
+    // this.fetchCampaignData();    
+    this.fetCampaignDataByApi();
   }
-
+  async fetCampaignDataByApi(){
+    this.campaignAddress = this.route.snapshot.queryParamMap.get('id') ?? null;
+    if (this.campaignAddress) {
+      console.log('Campaign address from query params:', this.campaignAddress);
+      this.apiService.getCampaignById(this.campaignAddress).subscribe({
+        next : (res)=>{
+          console.log(res,"campaign data from api");
+          if(res.success && res.data){
+            const campaignData = res.data;
+            const campaign: Campaign = {
+              id: 0,
+              title: campaignData.title,
+              description: campaignData.description,
+              image: campaignData.img_url,
+              pdf : campaignData.pdf_url,
+              owner : campaignData.owner,
+              category: campaignData.category.toUpperCase(),
+              raised: campaignData.total_funded,
+              goal: campaignData.max_amount,
+              minAmount: campaignData.min_amount,
+              backers: campaignData.total_investors,
+              daysLeft: this.calculateDaysLeft(new Date(campaignData.campaign_end_date).getTime() / 1000),
+              fundingType: campaignData.funding_type,
+              votingRaised: campaignData?.totalRaisingVotes || 0,
+              status: campaignData.status
+            };
+            this.isPdfLoading.set(false);
+            console.log(campaign,"need campaignDAta");
+            this.campaign.set(campaign);
+          }else this.router.navigate(['**']);
+        },
+        error : (err)=>{
+          console.error(err,"error fetching campaign by id");
+          this.router.navigate(['**']);
+        }
+      });
+    }else this.router.navigate(['**']);
+  }
   async fetchCampaignData() {
     this.campaignAddress = this.route.snapshot.queryParamMap.get('id') ?? null;
     if (this.campaignAddress) {
@@ -110,7 +148,7 @@ export class CampaignComponent implements OnInit {
       
       if (campaignData){
         const campaign: Campaign = {
-          id: 0,
+          id: campaignData._id,
           title: campaignData.title,
           description: campaignData.description,
           image: campaignData.imageUrl,

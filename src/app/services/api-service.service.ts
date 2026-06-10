@@ -46,5 +46,9 @@ setToken(token: string, account: string) {
       }
     });
   }
+
+  getCampaignById(campaignId : string) : Observable<{success: boolean,msg : string,data: any}>{
+    return this.http.get<{success: boolean,msg : string,data: any}>(`${this.baseUrl}getCampaginByUser/${campaignId}`);
+  }
   
 }
