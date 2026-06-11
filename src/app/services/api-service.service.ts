@@ -50,5 +50,13 @@ setToken(token: string, account: string) {
   getCampaignById(campaignId : string) : Observable<{success: boolean,msg : string,data: any}>{
     return this.http.get<{success: boolean,msg : string,data: any}>(`${this.baseUrl}getCampaginByUser/${campaignId}`);
   }
-  
+
+  investInCampaign(campaign_id : string,walletAddress : string, amount : number) : Observable<{success: boolean,msg : string,data: any}>{
+    return this.http.post<{success: boolean,msg : string,data: any}>(`${this.baseUrl}invest-campaign`,{campaign_id,walletAddress, amount},{
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`
+      }
+    });
+  }
+
 }
