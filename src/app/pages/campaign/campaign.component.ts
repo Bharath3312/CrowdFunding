@@ -13,6 +13,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { EvmWalletServices } from '../../services/evm-wallet.services';
 import { WalletState } from '../../models/wallet-provider.model';
 import { ApiServiceService } from '../../services/api-service.service';
+import { firstValueFrom } from 'rxjs';
 interface Campaign {
   id: string;
   title: string;
@@ -101,6 +102,57 @@ export class CampaignComponent implements OnInit {
     // this.fetchCampaignData();    
     this.fetCampaignDataByApi();
   }
+
+  async getCampaignData(){
+    try {
+        this.campaignAddress = this.route.snapshot.queryParamMap.get('id') ?? null;
+        console.log('Campaign address from query params:', this.campaignAddress);
+      if (!this.campaignAddress) throw new Error("")
+
+        const campaignDataContract = await  this.contractService.getCampaignData(this.campaignAddress);
+        console.log(campaignDataContract,"campaignDatacampaignDatacampaignData");
+        if(!campaignDataContract) throw new Error()
+
+        const apiData = await firstValueFrom(this.apiService.getCampaignById(this.campaignAddress as string));
+        console.log(apiData,"api Data");
+        if(!apiData || !apiData?.success || !apiData?.data) throw new Error();
+
+        const campaignData = apiData.data;
+
+        const campaign: Campaign = {
+            id: campaignData._id,
+            title: campaignData.title,
+            description: campaignData.description,
+            image: campaignData.img_url,
+            pdf : campaignData.pdf_url,
+            owner : campaignData.owner,
+            category: campaignData.category.toUpperCase(),
+            raised:Number(campaignDataContract.status) <=2 ? parseInt(ethers.formatEther(campaignDataContract.totalInvested)) :campaignData.total_funded,
+            goal: campaignData.max_amount,
+            minAmount: campaignData.min_amount,
+            backers: campaignData.total_investors,
+            daysLeft: this.calculateDaysLeft(new Date(campaignData.campaign_end_date).getTime() / 1000),
+            fundingType: campaignData.funding_type,
+            votingRaised:  Number(campaignDataContract.totalRaisingVotes),  //campaignData?.totalRaisingVotes || 0,
+            status:Number(campaignDataContract.status) , // campaignData.status
+          }
+
+          if(campaign?.raised > 0 &&campaignData?.investors.length){
+              this.getBackers(campaignData.investors);
+          }
+          if(campaign.votingRaised > 0 && campaignData?.voting.length){
+            // this.getVotingResults(Number(campaignData.totalRaisingVotes));
+          }
+          this.isPdfLoading.set(false);
+          console.log(campaign,"need campaignDAta");
+          this.campaign.set(campaign);
+          
+    } catch (error) {
+        this.router.navigate(['**']);
+    }
+      
+  }
+
   async fetCampaignDataByApi(){
     this.campaignAddress = this.route.snapshot.queryParamMap.get('id') ?? null;
     if (this.campaignAddress) {
@@ -142,48 +194,48 @@ export class CampaignComponent implements OnInit {
       });
     }else this.router.navigate(['**']);
   }
-  // async fetchCampaignData() {
-  //   this.campaignAddress = this.route.snapshot.queryParamMap.get('id') ?? null;
-  //   if (this.campaignAddress) {
-  //     console.log('Campaign address from query params:', this.campaignAddress);
-  //     const campaignData = await  this.contractService.getCampaignData(this.campaignAddress);
-  //     console.log(campaignData,"campaignDatacampaignDatacampaignData");
+  async fetchCampaignData() {
+    this.campaignAddress = this.route.snapshot.queryParamMap.get('id') ?? null;
+    if (this.campaignAddress) {
+      console.log('Campaign address from query params:', this.campaignAddress);
+      const campaignData = await  this.contractService.getCampaignData(this.campaignAddress);
+      console.log(campaignData,"campaignDatacampaignDatacampaignData");
       
-  //     if (campaignData){
-  //       const campaign: Campaign = {
-  //         id: "0",
-  //         title: campaignData.title,
-  //         description: campaignData.description,
-  //         image: campaignData.imageUrl,
-  //         pdf : campaignData.pdfUrl,
-  //         owner : campaignData.owner,
-  //         raised : parseInt(ethers.formatEther(campaignData.totalInvested)),
-  //         goal : parseInt(ethers.formatEther(campaignData.maxAmount)),
-  //         minAmount : parseInt(ethers.formatEther(campaignData.minAmount)),
-  //         backers : 0 , //campaignData.totalInvestors.length ?? 0,
-  //         category : campaignData.category.toUpperCase(),
-  //         daysLeft : this.calculateDaysLeft(Number(campaignData.deadline)),
-  //         fundingType : Number(campaignData.fundingType),
-  //         votingRaised : Number(campaignData.totalRaisingVotes),
-  //         status :Number(campaignData.status)
-  //       }
-  //       // if(campaignData.totalInvestors.length > 0){
-  //       //   this.getBackers(campaignData.totalInvestors);
-  //       // }
-  //       if(campaignData.totalRaisingVotes > 0){
-  //         this.getVotingResults(Number(campaignData.totalRaisingVotes));
-  //       }
-  //       this.isPdfLoading.set(false);
-  //       console.log(campaign,"need campaignDAta");
-  //       this.campaign.set(campaign);
-  //     }else {
-  //       this.router.navigate(['**']);
-  //     }
-  //   } else {
-  //     console.log('No campaign address provided in query params.');
-  //     this.router.navigate(['**']);
-  //   }
-  // }
+      if (campaignData){
+        const campaign: Campaign = {
+          id: "0",
+          title: campaignData.title,
+          description: campaignData.description,
+          image: campaignData.imageUrl,
+          pdf : campaignData.pdfUrl,
+          owner : campaignData.owner,
+          raised : parseInt(ethers.formatEther(campaignData.totalInvested)),
+          goal : parseInt(ethers.formatEther(campaignData.maxAmount)),
+          minAmount : parseInt(ethers.formatEther(campaignData.minAmount)),
+          backers : 0 , //campaignData.totalInvestors.length ?? 0,
+          category : campaignData.category.toUpperCase(),
+          daysLeft : this.calculateDaysLeft(Number(campaignData.deadline)),
+          fundingType : Number(campaignData.fundingType),
+          votingRaised : Number(campaignData.totalRaisingVotes),
+          status :Number(campaignData.status)
+        }
+        // if(campaignData.totalInvestors.length > 0){
+        //   this.getBackers(campaignData.totalInvestors);
+        // }
+        if(campaignData.totalRaisingVotes > 0){
+          this.getVotingResults(Number(campaignData.totalRaisingVotes));
+        }
+        this.isPdfLoading.set(false);
+        console.log(campaign,"need campaignDAta");
+        this.campaign.set(campaign);
+      }else {
+        this.router.navigate(['**']);
+      }
+    } else {
+      console.log('No campaign address provided in query params.');
+      this.router.navigate(['**']);
+    }
+  }
   async getVotingResults(votingRaised : number)  {
     try {
       console.log(votingRaised,"votingRaisedvotingRaisedvotingRaised");
@@ -314,7 +366,7 @@ export class CampaignComponent implements OnInit {
     console.log(payFund,"trx data");
     this.toast.success('Success',`Investment successful! Transaction Hash: ${payFund?.txHash}`);
     this.apiService.investInCampaign(this.campaign()?.id as string, this.walletState.address as string, value).subscribe({
-      next : (res)=>{
+      next : async(res)=>{
         console.log(res,"investment response from api");
         this.backers.update(backers => {
             const existingBackerIndex = backers.findIndex(b => b.address === this.walletState.address);
@@ -324,9 +376,12 @@ export class CampaignComponent implements OnInit {
               updatedBackers[existingBackerIndex].value += value;
               return updatedBackers;
             }
+            
             // If backer doesn't exist, add a new entry
             return [...backers, {address: this.walletState.address as string, value}];
           });
+          const getCampaignData = await this.contractService.getCampaignData(this.campaignAddress as string);
+          console.log(getCampaignData,"form investorsssss...");
         },
       error : (err)=>{
         console.log();
