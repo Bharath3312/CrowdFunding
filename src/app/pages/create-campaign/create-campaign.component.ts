@@ -246,16 +246,17 @@ export class CreateCampaignComponent {
        console.log(cData,"data")
         const storedData= {
           campaignAddress : data?.campaignAddress,
-          title : cData.title,
-          description : cData.description,
-          imgUrl : cData.imageUrl,
-          pdfUrl : cData.pdfUrl,
+          title : payloadData.campaignTitle,
+          description : payloadData.campaignDescription,
+          imgUrl: environment.ipfsPubUrl + payloadData.campaignImage,
+          pdfUrl: environment.ipfsPubUrl + payloadData.campaignDocument,
           owner : cData.owner,
-          minAmount : parseInt(ethers.formatEther(cData.minAmount)),
-          maxAmount : parseInt(ethers.formatEther(cData.maxAmount)), 
-          category : cData.category.toUpperCase(),
+          minAmount : payloadData.campaignMinimumInvestment,
+          maxAmount : payloadData.campaignMinimumInvestment, 
+          category :  payloadData.campaignCategory?.toUpperCase(),
           deadline : Number(cData.deadline),
-          fundingType : Number(cData.fundingType),
+          graceDays : Number(cData.graceDays),
+          fundingType : payloadData.campaignFundingType,
           status : Number(cData.status)
         }
         console.log(storedData,"storedData..............");

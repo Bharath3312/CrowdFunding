@@ -283,6 +283,21 @@ export class ContractService {
 				"internalType": "enum Campaign.Status",
 				"name": "status",
 				"type": "uint8"
+			},
+			{
+				"internalType": "uint256",
+				"name": "deadline",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "graceDays",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",

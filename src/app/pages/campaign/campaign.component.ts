@@ -100,7 +100,8 @@ export class CampaignComponent implements OnInit {
   }
   async ngOnInit() {    
     // this.fetchCampaignData();    
-    this.fetCampaignDataByApi();
+    // this.fetCampaignDataByApi();
+    this.getCampaignData();
   }
 
   async getCampaignData(){
@@ -125,7 +126,7 @@ export class CampaignComponent implements OnInit {
             description: campaignData.description,
             image: campaignData.img_url,
             pdf : campaignData.pdf_url,
-            owner : campaignData.owner,
+            owner : campaignDataContract.owner,
             category: campaignData.category.toUpperCase(),
             raised:Number(campaignDataContract.status) <=2 ? parseInt(ethers.formatEther(campaignDataContract.totalInvested)) :campaignData.total_funded,
             goal: campaignData.max_amount,
@@ -365,6 +366,9 @@ export class CampaignComponent implements OnInit {
     const payFund = await this.contractService.invest(this.campaignAddress as string,amt)
     console.log(payFund,"trx data");
     this.toast.success('Success',`Investment successful! Transaction Hash: ${payFund?.txHash}`);
+    // const campaignContractData = await this.contractService.getCampaignData(this.campaignAddress as string);
+    // console.log(campaignContractData,"after invest campaign status");
+    this.getCampaignData();
     this.apiService.investInCampaign(this.campaign()?.id as string, this.walletState.address as string, value).subscribe({
       next : async(res)=>{
         console.log(res,"investment response from api");
@@ -382,6 +386,10 @@ export class CampaignComponent implements OnInit {
           });
           const getCampaignData = await this.contractService.getCampaignData(this.campaignAddress as string);
           console.log(getCampaignData,"form investorsssss...");
+          if(Number(getCampaignData.status) != this.campaign()?.status){
+              console.log("change status");
+              
+          }
         },
       error : (err)=>{
         console.log();
