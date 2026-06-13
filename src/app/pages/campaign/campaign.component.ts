@@ -12,9 +12,10 @@ import { FirebaseService } from '../../services/firebase.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { EvmWalletServices } from '../../services/evm-wallet.services';
 import { WalletState } from '../../models/wallet-provider.model';
-
+import { ApiServiceService } from '../../services/api-service.service';
+import { firstValueFrom } from 'rxjs';
 interface Campaign {
-  id: number;
+  id: string;
   title: string;
   description: string;
   image: string;
@@ -73,7 +74,7 @@ export class CampaignComponent implements OnInit {
   private firebase  = inject(FirebaseService)
   public contractService = inject(ContractService);
   private walletServices =  inject(EvmWalletServices)
-  
+  private apiService = inject(ApiServiceService);
   readonly currentTheme = this.themeService.theme;
   isPdfLoading = signal<boolean>(true);
   campaignAddress: string | null = null;
@@ -98,9 +99,102 @@ export class CampaignComponent implements OnInit {
     })
   }
   async ngOnInit() {    
-    this.fetchCampaignData();    
+    // this.fetchCampaignData();    
+    // this.fetCampaignDataByApi();
+    this.getCampaignData();
   }
 
+  async getCampaignData(){
+    try {
+        this.campaignAddress = this.route.snapshot.queryParamMap.get('id') ?? null;
+        console.log('Campaign address from query params:', this.campaignAddress);
+      if (!this.campaignAddress) throw new Error("")
+
+        const campaignDataContract = await  this.contractService.getCampaignData(this.campaignAddress);
+        console.log(campaignDataContract,"campaignDatacampaignDatacampaignData");
+        if(!campaignDataContract) throw new Error()
+
+        const apiData = await firstValueFrom(this.apiService.getCampaignById(this.campaignAddress as string));
+        console.log(apiData,"api Data");
+        if(!apiData || !apiData?.success || !apiData?.data) throw new Error();
+
+        const campaignData = apiData.data;
+
+        const campaign: Campaign = {
+            id: campaignData._id,
+            title: campaignData.title,
+            description: campaignData.description,
+            image: campaignData.img_url,
+            pdf : campaignData.pdf_url,
+            owner : campaignDataContract.owner,
+            category: campaignData.category.toUpperCase(),
+            raised:Number(campaignDataContract.status) <=2 ? parseInt(ethers.formatEther(campaignDataContract.totalInvested)) :campaignData.total_funded,
+            goal: campaignData.max_amount,
+            minAmount: campaignData.min_amount,
+            backers: campaignData.total_investors,
+            daysLeft: this.calculateDaysLeft(new Date(campaignData.campaign_end_date).getTime() / 1000),
+            fundingType: campaignData.funding_type,
+            votingRaised:  Number(campaignDataContract.totalRaisingVotes),  //campaignData?.totalRaisingVotes || 0,
+            status:Number(campaignDataContract.status) , // campaignData.status
+          }
+
+          if(campaign?.raised > 0 &&campaignData?.investors.length){
+              this.getBackers(campaignData.investors);
+          }
+          if(campaign.votingRaised > 0 && campaignData?.voting.length){
+            // this.getVotingResults(Number(campaignData.totalRaisingVotes));
+          }
+          this.isPdfLoading.set(false);
+          console.log(campaign,"need campaignDAta");
+          this.campaign.set(campaign);
+          
+    } catch (error) {
+        this.router.navigate(['**']);
+    }
+      
+  }
+
+  async fetCampaignDataByApi(){
+    this.campaignAddress = this.route.snapshot.queryParamMap.get('id') ?? null;
+    if (this.campaignAddress) {
+      console.log('Campaign address from query params:', this.campaignAddress);
+      this.apiService.getCampaignById(this.campaignAddress).subscribe({
+        next : (res)=>{
+          console.log(res,"campaign data from api");
+          if(res.success && res.data){
+            const campaignData = res.data;
+            const campaign: Campaign = {
+              id: campaignData._id,
+              title: campaignData.title,
+              description: campaignData.description,
+              image: campaignData.img_url,
+              pdf : campaignData.pdf_url,
+              owner : campaignData.owner,
+              category: campaignData.category.toUpperCase(),
+              raised: campaignData.total_funded,
+              goal: campaignData.max_amount,
+              minAmount: campaignData.min_amount,
+              backers: campaignData.total_investors,
+              daysLeft: this.calculateDaysLeft(new Date(campaignData.campaign_end_date).getTime() / 1000),
+              fundingType: campaignData.funding_type,
+              votingRaised: campaignData?.totalRaisingVotes || 0,
+              status: campaignData.status
+            };
+            if(campaignData?.investors.length){
+              this.getBackers(campaignData.investors);
+            }
+            this.isPdfLoading.set(false);
+            console.log(campaign,"need campaignDAta");
+            this.campaign.set(campaign);
+          }else this.router.navigate(['**']);
+        },
+        error : (err)=>{
+          console.error(err,"error fetching campaign by id");
+          this.router.navigate(['**']);
+        }
+      });
+    }else this.router.navigate(['**']);
+  }
   async fetchCampaignData() {
     this.campaignAddress = this.route.snapshot.queryParamMap.get('id') ?? null;
     if (this.campaignAddress) {
@@ -110,7 +204,7 @@ export class CampaignComponent implements OnInit {
       
       if (campaignData){
         const campaign: Campaign = {
-          id: 0,
+          id: "0",
           title: campaignData.title,
           description: campaignData.description,
           image: campaignData.imageUrl,
@@ -119,16 +213,16 @@ export class CampaignComponent implements OnInit {
           raised : parseInt(ethers.formatEther(campaignData.totalInvested)),
           goal : parseInt(ethers.formatEther(campaignData.maxAmount)),
           minAmount : parseInt(ethers.formatEther(campaignData.minAmount)),
-          backers : campaignData.totalInvestors.length ?? 0,
+          backers : 0 , //campaignData.totalInvestors.length ?? 0,
           category : campaignData.category.toUpperCase(),
           daysLeft : this.calculateDaysLeft(Number(campaignData.deadline)),
           fundingType : Number(campaignData.fundingType),
           votingRaised : Number(campaignData.totalRaisingVotes),
           status :Number(campaignData.status)
         }
-        if(campaignData.totalInvestors.length > 0){
-          this.getBackers(campaignData.totalInvestors);
-        }
+        // if(campaignData.totalInvestors.length > 0){
+        //   this.getBackers(campaignData.totalInvestors);
+        // }
         if(campaignData.totalRaisingVotes > 0){
           this.getVotingResults(Number(campaignData.totalRaisingVotes));
         }
@@ -165,7 +259,15 @@ export class CampaignComponent implements OnInit {
       console.error('Error fetching voting results:', error);
     }
   }
-  async getBackers(investors: string[]) {
+  async getBackers(investors : any){
+    console.log(investors,"investorsinvestors");
+    
+      for(const investor of investors){
+        console.log(investor,"investorinvestor");
+        this.backers.update(backers => [...backers, {address: investor.wallet_address, value: investor.amount}]);
+      }
+  }
+  async getBackerss(investors: string[]) {
     try {
       // const backersData = [];/
       for (const investor of investors) {
@@ -264,9 +366,38 @@ export class CampaignComponent implements OnInit {
     const payFund = await this.contractService.invest(this.campaignAddress as string,amt)
     console.log(payFund,"trx data");
     this.toast.success('Success',`Investment successful! Transaction Hash: ${payFund?.txHash}`);
-    const backers = this.campaign()?.backers || 0;
-    this.backers.set([]);
-    await this.fetchCampaignData(); // Refresh campaign data
+    // const campaignContractData = await this.contractService.getCampaignData(this.campaignAddress as string);
+    // console.log(campaignContractData,"after invest campaign status");
+    this.getCampaignData();
+    this.apiService.investInCampaign(this.campaign()?.id as string, this.walletState.address as string, value).subscribe({
+      next : async(res)=>{
+        console.log(res,"investment response from api");
+        this.backers.update(backers => {
+            const existingBackerIndex = backers.findIndex(b => b.address === this.walletState.address);
+            if (existingBackerIndex !== -1) {
+              // If backer already exists, update the value
+              const updatedBackers = [...backers];
+              updatedBackers[existingBackerIndex].value += value;
+              return updatedBackers;
+            }
+            
+            // If backer doesn't exist, add a new entry
+            return [...backers, {address: this.walletState.address as string, value}];
+          });
+          const getCampaignData = await this.contractService.getCampaignData(this.campaignAddress as string);
+          console.log(getCampaignData,"form investorsssss...");
+          if(Number(getCampaignData.status) != this.campaign()?.status){
+              console.log("change status");
+              
+          }
+        },
+      error : (err)=>{
+        console.log();
+      }
+    })
+    // const backers = this.campaign()?.backers || 0;
+    // this.backers.set([]);
+    // await this.fetchCampaignData(); // Refresh campaign data
     // if((this.campaign()?.backers ?? 0) > backers){
     //   await this.firebase.updateContribution(`${this.walletState.address}_${this.walletState.chainId}`, this.campaignAddress as string ,value);
     //   await this.firebase.incrementUserCampaignStat(
@@ -296,7 +427,7 @@ export class CampaignComponent implements OnInit {
       this.contractService.refund(this.campaignAddress as string).then((res)=>{
         console.log(res,"refundd")
          this.toast.success('Success',`Vote raised successfully! Transaction Hash: ${res?.txHash}`);
-        this.fetchCampaignData();
+        // this.fetchCampaignData();
       })
   }
   raiseVote(){
@@ -304,7 +435,7 @@ export class CampaignComponent implements OnInit {
       this.contractService.raiseToVote(this.campaignAddress as string).then((res)=>{
         console.log(res,"vote response");
         this.toast.success('Success',`Vote raised successfully! Transaction Hash: ${res?.txHash}`);
-        this.fetchCampaignData();
+        // this.fetchCampaignData();
       }).catch((err)=>{
         console.log(err,"vote error");
         this.toast.error('Error',`Failed to raise vote: ${err.message || err}`);
@@ -316,7 +447,7 @@ export class CampaignComponent implements OnInit {
       console.log(res,"vote response");
       this.toast.success('Success',`Voted successfully! Transaction Hash: ${res?.txHash}`);
       this.votingResults.set([])
-        this.fetchCampaignData();
+        // this.fetchCampaignData();
     }).catch((err)=>{
       console.log(err,"vote error");
       this.toast.error('Error',`Failed to vote: ${err.message || err}`);
@@ -328,7 +459,7 @@ export class CampaignComponent implements OnInit {
       this.toast.success('Withdraw is successful! Transaction Hash: ${res?.txHash}', 'Success');
       this.backers.set([]);
       this.votingResults.set([]);
-      this.fetchCampaignData(); /// when withdraw is not update properly  is on going||  then refund  and voteing flow is completed 
+      // this.fetchCampaignData(); /// when withdraw is not update properly  is on going||  then refund  and voteing flow is completed 
     }).catch((err)=>{
       console.log(err,"vote error");
       this.toast.error('Error',`Failed to vote: ${err.message || err}`);

@@ -267,89 +267,37 @@ export class ContractService {
 	},
 	{
 		"inputs": [],
-		"name": "getCampaginData",
+		"name": "getCampaignStatus",
 		"outputs": [
 			{
-				"components": [
-					{
-						"internalType": "string",
-						"name": "title",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "description",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "imageUrl",
-						"type": "string"
-					},
-					{
-						"internalType": "string",
-						"name": "pdfUrl",
-						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "minAmount",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "maxAmount",
-						"type": "uint256"
-					},
-					{
-						"internalType": "enum Campaign.FundingType",
-						"name": "fundingType",
-						"type": "uint8"
-					},
-					{
-						"internalType": "string",
-						"name": "category",
-						"type": "string"
-					},
-					{
-						"internalType": "uint256",
-						"name": "deadline",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
-						"name": "graceDays",
-						"type": "uint256"
-					},
-					{
-						"internalType": "address",
-						"name": "owner",
-						"type": "address"
-					},
-					{
-						"internalType": "uint256",
-						"name": "totalInvested",
-						"type": "uint256"
-					},
-					{
-						"internalType": "enum Campaign.Status",
-						"name": "status",
-						"type": "uint8"
-					},
-					{
-						"internalType": "uint8",
-						"name": "totalRaisingVotes",
-						"type": "uint8"
-					},
-					{
-						"internalType": "address[]",
-						"name": "totalInvestors",
-						"type": "address[]"
-					}
-				],
-				"internalType": "struct Campaign.CampaignData",
-				"name": "",
-				"type": "tuple"
+				"internalType": "uint256",
+				"name": "totalInvested",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint8",
+				"name": "totalRaisingVotes",
+				"type": "uint8"
+			},
+			{
+				"internalType": "enum Campaign.Status",
+				"name": "status",
+				"type": "uint8"
+			},
+			{
+				"internalType": "uint256",
+				"name": "deadline",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "graceDays",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
 			}
 		],
 		"stateMutability": "view",
@@ -454,7 +402,7 @@ export class ContractService {
 		"stateMutability": "nonpayable",
 		"type": "function"
 	}
-	];
+]
   constructor(private walletServices : EvmWalletServices) {
   
    }
@@ -555,7 +503,7 @@ export class ContractService {
   async getCampaignData(campaignAddress: string) {
 		try {
 				const contract = await this.getCampaignContract(campaignAddress);
-				return await contract['getCampaginData']();
+				return await contract['getCampaignStatus']();
 		} catch (error) {
 			console.log(error,"error fsdfsdfdf");
 			

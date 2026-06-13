@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
 import { ContractService } from '../../services/contract.service';
 import { ethers } from 'ethers';
+import { ApiServiceService } from '../../services/api-service.service';
 
 interface Campaign {
   id: number;
@@ -53,9 +54,9 @@ export class ExploreCampaignComponent {
 
     // Sample campaigns data
   readonly campaigns = signal<Campaign[]>([]);
-  constructor(private contractService: ContractService) { }
+  constructor(private contractService: ContractService,private apiService  : ApiServiceService) { }
 
-  async ngOnInit() {
+  async getCampaignsWithRpc(){
       this.loading.set(true);
 
     try {
@@ -64,7 +65,7 @@ export class ExploreCampaignComponent {
       const mappedCampaigns: Campaign[] = [];
       for(let el of campaignLists){
           const data = await this.contractService.getCampaignData(el);
-          console.log(data,"data",data.totalInvestors,"data.totalInvestors");
+          console.log(data,"data");
           
           const campaignData = {
             id: mappedCampaigns.length, // or index
@@ -75,7 +76,7 @@ export class ExploreCampaignComponent {
             pdf : data.pdfUrl,
             raised :parseInt(ethers.formatEther(data.totalInvested)),
             goal :parseInt(ethers.formatEther(data.maxAmount)),
-            backers : data.totalInvestors.length ?? 0,
+            backers : 0 , // data?.totalInvestors.length ?? 0,
             daysLeft : this.calculateDaysLeft(Number(data.deadline)),
             minmumInvestment : Number(data.minAmount),
             maximumInvestment : Number(data.maxAmount),
@@ -96,6 +97,95 @@ export class ExploreCampaignComponent {
     } finally {
         this.loading.set(false);
     }
+  }
+ async getCampaignsWithApi(){
+    this.loading.set(true);
+    try {
+      this.apiService.getCampaigns({}).subscribe(
+        {
+          next : (response)=>{
+            if(response.success){
+              console.log(response.data, "log from expolre components//////");
+              const campaignsFromApi = response.data.map((item: any, index: number) => ({
+                id: index,
+                address: item.campaign_address,
+                title: item.title,
+                description: item.description,
+                image: item.img_url,
+                pdf: item.pdf_url,
+                raised: item.total_funded,
+                goal: item.max_amount,
+                backers: item.total_investors,
+                daysLeft:  this.calculateDaysLeft(new Date(item.campaign_end_date).getTime() / 1000),// item.daysLeft,
+                minmumInvestment: item.min_amount,
+                maximumInvestment: item.max_amount,
+                fundingType: item.funding_type,
+                category: item.category.toUpperCase(),
+                deadline: item.campaign_end_date,
+                creator: item.owner,
+                status: item.status,
+              }));
+              console.log(campaignsFromApi,"campaignsFromApicampaignsFromApi");
+              
+              this.campaigns.set(campaignsFromApi);
+            }
+          },
+          error : (err)=>{
+            this.loading.set(false);
+            console.error(err);
+          }
+        }
+      );
+    } catch (error) {
+      
+    }
+    finally{
+      this.loading.set(false);
+    }
+  }
+  async ngOnInit() {
+    this.getCampaignsWithApi();
+    // this.getCampaignsWithRpc();
+    //   this.loading.set(true);
+
+    // try {
+    //   const campaignLists = await this.contractService.getAllCampaigns();
+    //   console.log(campaignLists,"campaignLists");
+    //   const mappedCampaigns: Campaign[] = [];
+    //   for(let el of campaignLists){
+    //       const data = await this.contractService.getCampaignData(el);
+    //       console.log(data,"data");
+          
+    //       const campaignData = {
+    //         id: mappedCampaigns.length, // or index
+    //         address : el,
+    //         title : data.title,
+    //         description : data.description,
+    //         image : data.imageUrl,
+    //         pdf : data.pdfUrl,
+    //         raised :parseInt(ethers.formatEther(data.totalInvested)),
+    //         goal :parseInt(ethers.formatEther(data.maxAmount)),
+    //         backers : 0 , // data?.totalInvestors.length ?? 0,
+    //         daysLeft : this.calculateDaysLeft(Number(data.deadline)),
+    //         minmumInvestment : Number(data.minAmount),
+    //         maximumInvestment : Number(data.maxAmount),
+    //         fundingType : Number(data.fundingType),
+    //         category :  data.category.toUpperCase(),
+    //         deadline : new Date(Number(data.deadline) * 1000).toLocaleDateString(),
+    //         creator : data.owner,
+    //         status  : Number(data.status),
+    //       }
+    //       console.log(campaignData,"campaign data");
+    //     mappedCampaigns.push(campaignData);
+    //   }
+    //   console.log(mappedCampaigns,"mappedCampaigns");
+      
+    //   this.campaigns.set(mappedCampaigns);
+    // } catch (error) {
+    //    console.error(error);
+    // } finally {
+    //     this.loading.set(false);
+    // }
   }
   readonly currentTheme = this.themeService.theme;
 

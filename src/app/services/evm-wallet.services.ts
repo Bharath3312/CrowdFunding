@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
 import { WalletProvider, WalletState } from '../models/wallet-provider.model';
 import { initWalletDiscovery } from './evm-provider-registry';
 import { ethers } from 'ethers';
@@ -76,30 +76,45 @@ export class EvmWalletServices {
     }
   }
 
-  async authenticate(walletAddress : string){
-      this.apiService.getNonce(walletAddress).subscribe(async (res)=>{
-        if(res.success && res.nonce){
-            const signMessage = await this.signMessage(res.nonce);
-            if(signMessage){
-              this.apiService.verifySignature(walletAddress, signMessage,res.nonce).subscribe((verifyRes)=>{
-                if(verifyRes.success){
-                  console.log("Authentication successful");
-                  if(verifyRes.token){
-                    this.apiService.setToken(verifyRes.token);
-                  }
-                }
-              });
-            }else{
-              this.toast.error("Authentication failed","Message signing failed");
-            }
-        }else{
-          this.toast.error("Authentication failed",res.msg || "Could not get nonce");
-        }
-      },(err)=>{
-        console.error("Nonce request failed", err);
-        this.toast.error("Authentication failed","Could not get nonce");
-      });
+ async authenticate(walletAddress: string): Promise<void> {
+  try {
+    // Step 1: Get nonce
+    const nonceRes = await firstValueFrom(this.apiService.getNonce(walletAddress));
+
+    if (!nonceRes.success || !nonceRes.data) {
+      this.toast.error("Authentication failed", nonceRes.msg || "Could not get nonce");
+      return;
+    }
+
+    // Step 2: Sign message
+    const signedMessage = await this.signMessage(nonceRes.data);
+
+    if (!signedMessage) {
+      this.toast.error("Authentication failed", "Message signing failed");
+      return;
+    }
+
+    // Step 3: Verify signature
+    const verifyRes = await firstValueFrom(
+      this.apiService.verifySignature(walletAddress, signedMessage, nonceRes.data)
+    );
+
+    if (!verifyRes.success) {
+      this.toast.error("Authentication failed", "Signature verification failed");
+      return;
+    }
+
+    // Step 4: Store token
+    if (verifyRes.data?.token) {
+      this.apiService.setToken(verifyRes.data.token, walletAddress);
+      console.log("Authentication successful");
+    }
+
+  } catch (err) {
+    console.error("Authentication failed", err);
+    this.toast.error("Authentication failed", "Could not get nonce");
   }
+}
 
 
 
@@ -118,9 +133,21 @@ export class EvmWalletServices {
       this.updateState({isConnected  : true, address : account[0],chainId : parseInt(chainId,16),isLoading : false,provider : wallet.provider})
       console.log(accounts,"accounts");
       console.log(chainId,"chainds");
-
+      // localStorage.setItem('account', account[0]);
+      
       this.listenForEvents(wallet.provider);
-      this.authenticate(account[0]);
+      const storedAccount = localStorage.getItem('verifyAccount');
+      const token = localStorage.getItem('authToken');
+      const expiry = localStorage.getItem('tokenExpiry');
+
+      if (
+        account[0]?.toUpperCase() !== storedAccount?.toUpperCase() ||
+        !token ||
+        !expiry ||
+        Date.now() > Number(expiry)
+      ) {
+          this.authenticate(account[0]);
+      }
       return true;
     } catch (err) {
       this.updateState({isLoading:false})
@@ -131,7 +158,7 @@ export class EvmWalletServices {
   private listenForEvents(provider: any) {
     provider.on("accountsChanged", (accounts: string[]) => {
       console.log(accounts,"list");
-      if(!accounts.length) this.disconnect()
+      if(!accounts.length) this.disconnect();
       this.updateState({address : accounts[0]})
       this.authenticate(accounts[0]);
     });
