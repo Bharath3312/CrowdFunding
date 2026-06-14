@@ -59,4 +59,14 @@ setToken(token: string, account: string) {
     });
   }
 
+  updateCampaign(status : number,campaignAddress : string) : Observable<{success: boolean,msg : string,data: any}>{
+    return this.http.post<{success: boolean,msg : string,data: any}>(`${this.baseUrl}update-campaign`,{status , campaignAddress},{
+      headers: {
+        Authorization: `Bearer ${this.getToken()}`
+      }
+    })
+  };
+
+  
+
 }

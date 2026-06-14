@@ -252,7 +252,7 @@ export class CreateCampaignComponent {
           pdfUrl: environment.ipfsPubUrl + payloadData.campaignDocument,
           owner : cData.owner,
           minAmount : payloadData.campaignMinimumInvestment,
-          maxAmount : payloadData.campaignMinimumInvestment, 
+          maxAmount : payloadData.campaignMaximumInvestment, 
           category :  payloadData.campaignCategory?.toUpperCase(),
           deadline : Number(cData.deadline),
           graceDays : Number(cData.graceDays),
