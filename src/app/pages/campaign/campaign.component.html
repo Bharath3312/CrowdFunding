@@ -83,7 +83,7 @@
                 <!-- voting -->
                 @else if(campaign.status === 1){
                   @if(campaign.votingRaised >0 ){
-                      @if(votingResults()[0].status == 0){
+                      @if(votingResults()[0].status == 0 && !myCurrentVoteStatus()){
                         <div class="w-full p-5 rounded-xl border 
                           bg-yellow-50 border-yellow-200 
                           dark:bg-yellow-900/20 dark:border-yellow-700">
@@ -118,6 +118,23 @@
                               Reject
                             </button>
                           </div>
+                        </div>
+                      }
+                      @else if(votingResults()[0].status === 0 && myCurrentVoteStatus()){
+                        <div class="rounded-xl border border-blue-200 dark:border-blue-700 
+                                    bg-blue-50 dark:bg-blue-900/20 p-6 text-center">
+
+                          <h4 class="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-2">
+                            Vote Submitted ✅
+                          </h4>
+
+                          <p class="text-sm text-blue-700 dark:text-blue-400">
+                            Thank you for voting! Your response has been recorded.
+                          </p>
+
+                          <p class="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                            Waiting for other backers to cast their votes...
+                          </p>
                         </div>
                       }
                       @else if(votingResults()[0].status == 2){

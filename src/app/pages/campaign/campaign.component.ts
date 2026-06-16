@@ -84,6 +84,8 @@ export class CampaignComponent implements OnInit {
   readonly votingResults = signal<{amount : number; yes: number; no: number; status: number}[]>([]);
   readonly activeTab = signal<'PDF' | 'updates' | 'faqs'>('PDF');
 
+  readonly myCurrentVoteStatus = signal<boolean>(false);
+
   walletState : WalletState  = this.walletServices.walletState$.getValue();
 
   wallet$ = toSignal(
@@ -95,6 +97,7 @@ export class CampaignComponent implements OnInit {
     effect(()=>{
       const state = this.wallet$();
       console.log(state,"wallet state in campaign page");
+      if(this.walletState?.address != state.address) this.getCampaignData();
       this.walletState = state;
     })
   }
@@ -141,14 +144,16 @@ export class CampaignComponent implements OnInit {
           if(campaign?.raised > 0 &&campaignData?.investors.length){
               this.getBackers(campaignData.investors);
           }
-          if(campaign.votingRaised > 0 && campaignData?.voting.length){
-            // this.getVotingResults(Number(campaignData.totalRaisingVotes));
+          if(campaign.votingRaised > 0){
+            this.getVotingResults(Number(campaign.votingRaised));
           }
           this.isPdfLoading.set(false);
           console.log(campaign,"need campaignDAta");
+          this.checkAndUpdate(campaign.status)
           this.campaign.set(campaign);
           
     } catch (error) {
+      console.log(error,"error from getcampaigndata");
         this.router.navigate(['**']);
     }
       
@@ -240,9 +245,10 @@ export class CampaignComponent implements OnInit {
   async getVotingResults(votingRaised : number)  {
     try {
       console.log(votingRaised,"votingRaisedvotingRaisedvotingRaised");
-      
+      this.votingResults.set([]);
       for(let i=votingRaised -1 ;i>= 0;i--){
         const voteData = await this.contractService.getVoteingResults(this.campaignAddress as string, i);
+        console.log(voteData ,"voteData");
         const results = {
           amount : parseInt(ethers.formatEther(voteData.amount)),
           yes : Number(voteData.yesVotes),
@@ -253,7 +259,12 @@ export class CampaignComponent implements OnInit {
         
         this.votingResults.update(votes => [...votes, results]);
       }
-        console.log(this.votingResults(),"voteData in loop");
+      const hasVoted = await this.contractService.hasVoted(this.votingResults().length -1 , this.walletState?.address  as string, this.campaignAddress as string);
+      console.log(hasVoted);
+      this.myCurrentVoteStatus.set(hasVoted);
+      console.log(this.myCurrentVoteStatus,"mycurrentVote status");
+      
+     console.log(this.votingResults(),"voteData in loop");
       
     } catch (error) {
       console.error('Error fetching voting results:', error);
@@ -261,7 +272,7 @@ export class CampaignComponent implements OnInit {
   }
   async getBackers(investors : any){
     console.log(investors,"investorsinvestors");
-    
+      this.backers.set([]);
       for(const investor of investors){
         console.log(investor,"investorinvestor");
         this.backers.update(backers => [...backers, {address: investor.wallet_address, value: investor.amount}]);
@@ -352,7 +363,23 @@ export class CampaignComponent implements OnInit {
   goBack() {
     this.router.navigate(['/explorer']);
   }
-
+  async checkAndUpdate(campaignCurrentStatus : number){
+    //  const getCampaignData = await this.contractService.getCampaignData(this.campaignAddress as string);
+    //     console.log(getCampaignData,"form investorsssss...");
+        // const campaignCurrentStatus = Number(getCampaignData.status)
+        if(campaignCurrentStatus != this.campaign()?.status){
+            console.log("change status");
+            this.apiService.updateCampaign(campaignCurrentStatus, this.campaignAddress as string).subscribe({
+              next : (res)=>{
+                console.log(res,"update res...");
+                
+              }
+            });
+        }else {
+          console.log("no update status");
+          
+        }
+  } 
   async doFunding(amt: string) {
     const value = Number(amt);
     console.log(value,"amountamountamount");
@@ -366,76 +393,34 @@ export class CampaignComponent implements OnInit {
     const payFund = await this.contractService.invest(this.campaignAddress as string,amt)
     console.log(payFund,"trx data");
     this.toast.success('Success',`Investment successful! Transaction Hash: ${payFund?.txHash}`);
-    // const campaignContractData = await this.contractService.getCampaignData(this.campaignAddress as string);
-    // console.log(campaignContractData,"after invest campaign status");
+    
     this.getCampaignData();
     this.apiService.investInCampaign(this.campaign()?.id as string, this.walletState.address as string, value).subscribe({
       next : async(res)=>{
         console.log(res,"investment response from api");
-        this.backers.update(backers => {
-            const existingBackerIndex = backers.findIndex(b => b.address === this.walletState.address);
-            if (existingBackerIndex !== -1) {
-              // If backer already exists, update the value
-              const updatedBackers = [...backers];
-              updatedBackers[existingBackerIndex].value += value;
-              return updatedBackers;
-            }
-            
-            // If backer doesn't exist, add a new entry
-            return [...backers, {address: this.walletState.address as string, value}];
-          });
-          const getCampaignData = await this.contractService.getCampaignData(this.campaignAddress as string);
-          console.log(getCampaignData,"form investorsssss...");
-          if(Number(getCampaignData.status) != this.campaign()?.status){
-              console.log("change status");
-              
-          }
-        },
+        // this.checkAndUpdate();      
+      },
       error : (err)=>{
         console.log();
       }
     })
-    // const backers = this.campaign()?.backers || 0;
-    // this.backers.set([]);
-    // await this.fetchCampaignData(); // Refresh campaign data
-    // if((this.campaign()?.backers ?? 0) > backers){
-    //   await this.firebase.updateContribution(`${this.walletState.address}_${this.walletState.chainId}`, this.campaignAddress as string ,value);
-    //   await this.firebase.incrementUserCampaignStat(
-    //     `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalBackers', 1);
-    // }
-    //   await this.firebase.incrementUserCampaignStat(
-    //   `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalRaised', value);
-    
-    // if((this.campaign()?.backers ?? 0)> backers && this.campaign()?.owner){
-    //   const firebaseData = await this.firebase.getUserData(`${this.campaign()?.owner}_${this.walletState.chainId}`);
-    //   if(firebaseData){
-    //     this.firebase.incrementUserStat(
-    //       `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalBackers', 1);
-    //       this.firebase.incrementUserStat(
-    //         `${this.campaign()?.owner}_${this.walletState.chainId}`, 'totalRaised', value);
-    //       // this.firebase.updateUserData(
-    //       //   `${this.campaign()?.owner}_${this.walletState.chainId}`, {
-    //       //     backers : firebaseData?.['backers'] ? [...(firebaseData['backers']), this.walletState.address] : [this.walletState.address]
-    //       //   }
-    //       // )
-    //   }
-
-    // }
   }
   refund(){
       console.log("ahh refunduuuu");
       this.contractService.refund(this.campaignAddress as string).then((res)=>{
         console.log(res,"refundd")
-         this.toast.success('Success',`Vote raised successfully! Transaction Hash: ${res?.txHash}`);
-        // this.fetchCampaignData();
+        // this.checkAndUpdate();
+        this.getCampaignData();
+        this.toast.success('Success',`Vote raised successfully! Transaction Hash: ${res?.txHash}`);
       })
   }
   raiseVote(){
       console.log("rasivote,,,,,");
       this.contractService.raiseToVote(this.campaignAddress as string).then((res)=>{
         console.log(res,"vote response");
+        // this.checkAndUpdate();
+        this.getCampaignData();
         this.toast.success('Success',`Vote raised successfully! Transaction Hash: ${res?.txHash}`);
-        // this.fetchCampaignData();
       }).catch((err)=>{
         console.log(err,"vote error");
         this.toast.error('Error',`Failed to raise vote: ${err.message || err}`);
@@ -445,9 +430,9 @@ export class CampaignComponent implements OnInit {
     console.log("voting,,,,,",status);
     this.contractService.vote(this.campaignAddress as string, this.votingResults().length -1, status).then((res)=>{
       console.log(res,"vote response");
+      // this.checkAndUpdate();
+      this.getCampaignData();
       this.toast.success('Success',`Voted successfully! Transaction Hash: ${res?.txHash}`);
-      this.votingResults.set([])
-        // this.fetchCampaignData();
     }).catch((err)=>{
       console.log(err,"vote error");
       this.toast.error('Error',`Failed to vote: ${err.message || err}`);
@@ -456,10 +441,9 @@ export class CampaignComponent implements OnInit {
   withdrawFunds(){
     this.contractService.withdraw(this.campaignAddress as string).then((res)=>{
       console.log(res,"withdraw resp");
+      // this.checkAndUpdate();
+      this.getCampaignData();
       this.toast.success('Withdraw is successful! Transaction Hash: ${res?.txHash}', 'Success');
-      this.backers.set([]);
-      this.votingResults.set([]);
-      // this.fetchCampaignData(); /// when withdraw is not update properly  is on going||  then refund  and voteing flow is completed 
     }).catch((err)=>{
       console.log(err,"vote error");
       this.toast.error('Error',`Failed to vote: ${err.message || err}`);
