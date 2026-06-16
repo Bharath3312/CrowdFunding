@@ -12,7 +12,8 @@
 
 
 import { CommonModule, CurrencyPipe, DecimalPipe, NgClass } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ApiServiceService } from '../../services/api-service.service';
 
 type CampaignStatus = 'Active' | 'Successful' | 'Failed';
 type CampaignFilter = 'All' | CampaignStatus;
@@ -37,7 +38,7 @@ interface Campaign {
 })
 export class MyCampaignsComponent {
   selectedFilter: CampaignFilter = 'All';
-
+  apiServices = inject(ApiServiceService);
   campaigns: Campaign[] = [
     {
       id: 'cmp-001',
@@ -105,6 +106,17 @@ export class MyCampaignsComponent {
       status: 'Successful'
     }
   ];
+
+   ngOnInit(){
+      this.apiServices.get_myCampaigns().subscribe({
+        next :(res)=>{
+          console.log(res,"mycampaigns");
+        },
+        error :(err)=>{
+          console.log(err,"err");
+        }
+      })
+   }
 
   get filteredCampaigns(): Campaign[] {
     if (this.selectedFilter === 'All') return this.campaigns;

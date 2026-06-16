@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
@@ -67,6 +67,20 @@ setToken(token: string, account: string) {
     })
   };
 
+  get_myCampaigns(page: number = 1, status?: number): Observable<{ success: boolean; msg: string; data: any }> {
+    let params = new HttpParams().set('page', page);
+    if (status !== undefined) params = params.set('status', status);
+
+    return this.http.get<{ success: boolean; msg: string; data: any }>(
+      `${this.baseUrl}my-campaigns`,
+      {
+        params,
+        headers: {
+          Authorization: `Bearer ${this.getToken()}`
+        }
+      }  // ← single options object ✅
+    );
+  }
   
 
 }
