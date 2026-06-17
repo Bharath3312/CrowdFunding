@@ -67,7 +67,7 @@ setToken(token: string, account: string) {
     })
   };
 
-  get_myCampaigns(page: number = 1, status?: number): Observable<{ success: boolean; msg: string; data: any }> {
+  get_myCampaigns(page: number = 1, status?: string): Observable<{ success: boolean; msg: string; data: any }> {
     let params = new HttpParams().set('page', page);
     if (status !== undefined) params = params.set('status', status);
 
