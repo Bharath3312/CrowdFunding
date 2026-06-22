@@ -72,11 +72,19 @@ export class CreateCampaignComponent {
  constructor( ){
       effect(()=>{
         const state = this.wallet$();
+        console.log(state,"from in create-campaign-component...");
+        
         console.log("state change in create campagin component",state);
         if(!state.isConnected){
           this.toast.error('Error','Please connect your wallet to create a campaign');
           this.router.navigate(['/']);
         }else {
+          if(!state.isVerified && this.walletState.isVerified){
+            this.toast.error('Error','Please Verify the you wallet..');
+          }
+          if(!this.walletState.isVerified && state.isVerified){
+            this.toast.success('success',"Account Verified Successfully")
+          }
           this.walletState = state;
         }
       })
