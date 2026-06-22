@@ -13,4 +13,5 @@ export interface WalletState {
     chainId: number | null;
     error: string | null;
     isLoading: boolean;
+    isVerified : boolean;
 }

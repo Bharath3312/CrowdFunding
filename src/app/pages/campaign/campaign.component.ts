@@ -11,7 +11,7 @@ import { ToastService } from '../../services/toast.service';
 import { FirebaseService } from '../../services/firebase.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { EvmWalletServices } from '../../services/evm-wallet.services';
-import { WalletState } from '../../models/wallet-provider.model';
+import { WalletProvider, WalletState } from '../../models/wallet-provider.model';
 import { ApiServiceService } from '../../services/api-service.service';
 import { firstValueFrom } from 'rxjs';
 interface Campaign {
@@ -115,7 +115,7 @@ export class CampaignComponent implements OnInit {
 
         const campaignDataContract = await  this.contractService.getCampaignData(this.campaignAddress);
         console.log(campaignDataContract,"campaignDatacampaignDatacampaignData");
-        if(!campaignDataContract) throw new Error()
+        // if(!campaignDataContract) throw new Error();
 
         const apiData = await firstValueFrom(this.apiService.getCampaignById(this.campaignAddress as string));
         console.log(apiData,"api Data");
@@ -129,16 +129,16 @@ export class CampaignComponent implements OnInit {
             description: campaignData.description,
             image: campaignData.img_url,
             pdf : campaignData.pdf_url,
-            owner : campaignDataContract.owner,
+            owner : campaignDataContract?.owner || apiData.data?.owner,
             category: campaignData.category.toUpperCase(),
-            raised:Number(campaignDataContract.status) <=2 ? parseInt(ethers.formatEther(campaignDataContract.totalInvested)) :campaignData.total_funded,
+            raised:(campaignDataContract && campaignDataContract?.status && Number(campaignDataContract.status) <=2 )? parseInt(ethers.formatEther(campaignDataContract.totalInvested)) :campaignData.total_funded,
             goal: campaignData.max_amount,
             minAmount: campaignData.min_amount,
             backers: campaignData.total_investors,
             daysLeft: this.calculateDaysLeft(new Date(campaignData.campaign_end_date).getTime() / 1000),
             fundingType: campaignData.funding_type,
-            votingRaised:  Number(campaignDataContract.totalRaisingVotes),  //campaignData?.totalRaisingVotes || 0,
-            status:Number(campaignDataContract.status) , // campaignData.status
+            votingRaised: (campaignDataContract && campaignDataContract?.totalRaisingVotes)? Number(campaignDataContract.totalRaisingVotes) : 0,  //campaignData?.totalRaisingVotes || 0,
+            status:(campaignDataContract && campaignDataContract.status) ?  Number(campaignDataContract.status) : apiData.data?.status , // campaignData.status
           }
 
           if(campaign?.raised > 0 &&campaignData?.investors.length){
@@ -149,7 +149,9 @@ export class CampaignComponent implements OnInit {
           }
           this.isPdfLoading.set(false);
           console.log(campaign,"need campaignDAta");
-          this.checkAndUpdate(campaign.status)
+          if(apiData.data?.status != campaign.status){
+            this.checkAndUpdate(campaign.status)
+          }
           this.campaign.set(campaign);
           
     } catch (error) {
@@ -158,7 +160,12 @@ export class CampaignComponent implements OnInit {
     }
       
   }
-
+  get walletDetails(){
+    return this.walletServices.getExectWallet();
+  }
+  connectWallet(wallet:WalletProvider) {
+      this.walletServices.connect(wallet);
+  }
   async fetCampaignDataByApi(){
     this.campaignAddress = this.route.snapshot.queryParamMap.get('id') ?? null;
     if (this.campaignAddress) {

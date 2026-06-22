@@ -47,6 +47,7 @@ export class MyCampaignsComponent {
   totalRaised:number=0;
   totalBackers:number = 0;
   page:number =1;
+  totalPage?:number;
    ngOnInit(){
      this.getCampaigns();
    }
@@ -62,6 +63,7 @@ export class MyCampaignsComponent {
             this.failedCampaigns = res.data?.failedCount;
             this.totalRaised = res.data?.totalRaised;
             this.totalBackers = res.data?.totalBackers;
+            this.totalPage = res.data?.pagination?.totalPages
               const campaign: Campaign[] = res.data.campaignList.map((item:any)=>({
                 id : item._id,
                 title : item.title,
@@ -73,8 +75,53 @@ export class MyCampaignsComponent {
                 backers : item.total_investors,
                 status : this.statusToString(item.status)
               }));
-             
+            //  campaign.push({
+            //       id: 'cmp-002',
+            //       title: 'Community Skill Hub',
+            //       description:
+            //         'A digital + offline training center for youth to learn job-ready skills in design, coding, and freelancing.',
+            //       imageUrl:
+            //         'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80',
+            //       raised: 32000,
+            //       goal: 30000,
+            //       daysLeft: 0,
+            //       backers: 412,
+            //       status: 'Successful'
+                
+            //  })
+            //  campaign.push({
+            //     id: 'cmp-001',
+            //     title: 'Solar Water for Rural Schools',
+            //     description:
+            //       'Installing low-cost solar-powered water purifiers in underserved village schools to improve child health.',
+            //     imageUrl:
+            //       'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1200&q=80',
+            //     raised: 18500,
+            //     goal: 25000,
+            //     daysLeft: 18,
+            //     backers: 243,
+            //     status: 'Active'
+            //  })
+            //  campaign.push(
+            //   {
+            //     id: 'cmp-003',
+            //     title: 'Emergency Medical Transport',
+            //     description:
+            //       'Funding one ambulance van and first-response kits to reduce delays in critical emergencies.',
+            //     imageUrl:
+            //       'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=1200&q=80',
+            //     raised: 9800,
+            //     goal: 20000,
+            //     daysLeft: 0,
+            //     backers: 121,
+            //     status: 'Failed'
+            //   },
+            //  )
+            if(this.page ===1 ){
               this.campaigns.set(campaign)
+            }else{
+             this.campaigns.update(prev => [...prev, ...campaign]);
+            }
           }
           console.log(this.campaigns,"all campaigns");
           
@@ -88,6 +135,7 @@ export class MyCampaignsComponent {
     console.log(value,"by filetered");
     if(value != this.selectedFilter){
       this.selectedFilter = value;
+      this.page = 1;
       this.getCampaigns();
     }
    }
@@ -95,6 +143,11 @@ export class MyCampaignsComponent {
     if([0,1].includes(status)) return "Active"
     else if([2,4].includes(status)) return "Successful"
     else return "Failed"
+   }
+   loadMore(){
+      if(this.totalPage && this.page >= this.totalPage) return 
+      this.page += 1;
+      this.getCampaigns()
    }
   // get filteredCampaigns(): Campaign[] {
   //   if (this.selectedFilter === 'All') return this.campaigns;

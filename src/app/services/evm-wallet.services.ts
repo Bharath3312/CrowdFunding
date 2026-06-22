@@ -17,6 +17,7 @@ export class EvmWalletServices {
     chainId: null,
     error: null,
     isLoading: false,
+    isVerified : false
   }
 
   public walletState$ =   new BehaviorSubject<WalletState>(this.defaultState);
@@ -36,13 +37,17 @@ export class EvmWalletServices {
   }
 
   private updateState(newState : Partial<WalletState>){
+    console.log(newState,"newstate update");
+    
     this.walletState$.next({...this.walletState$.getValue(),...newState});
   }
 
   get availableWallets() {
     return this.wallets;
   }
-
+  getExectWallet(name :string='metamask'){
+    return this.wallets.find(e=> e.name.toLowerCase() === name.toLowerCase())
+  }
   get walletState$Observable(){
     return this.walletState$.asObservable();
   }
@@ -58,9 +63,9 @@ export class EvmWalletServices {
 
   }
   async signMessage(nonce : string): Promise<string | void> { 
+    this.updateState({isLoading : true})
     try {
       // const nonce = "Sign this message to login: b71f151d-5e24-45d5-a1ba-77e454460107";
-      
       console.log(nonce,"message");
       
       const signature =  await this.walletState$.getValue().provider.request({
@@ -73,6 +78,9 @@ export class EvmWalletServices {
 
     } catch (err) {
       console.error("Message signing failed", err);
+    }
+    finally{
+      this.updateState({isLoading : false})
     }
   }
 
@@ -108,6 +116,7 @@ export class EvmWalletServices {
     if (verifyRes.data?.token) {
       this.apiService.setToken(verifyRes.data.token, walletAddress);
       console.log("Authentication successful");
+      this.updateState({isVerified : true})
     }
 
   } catch (err) {
@@ -130,12 +139,20 @@ export class EvmWalletServices {
         wallet.provider.request({ method: 'eth_chainId' })
       ])
       if(!accounts.length) throw new Error('Empty accounts');
-      this.updateState({isConnected  : true, address : account[0],chainId : parseInt(chainId,16),isLoading : false,provider : wallet.provider})
+
+      const updateState:WalletState = {
+        isConnected  : true, 
+        address : account[0],
+        chainId : parseInt(chainId,16),
+        isLoading : false,
+        provider : wallet.provider,
+        error : null,
+        isVerified : false
+      }
+      // this.updateState({isConnected  : true, address : account[0],chainId : parseInt(chainId,16),isLoading : false,provider : wallet.provider})
       console.log(accounts,"accounts");
       console.log(chainId,"chainds");
-      // localStorage.setItem('account', account[0]);
       
-      this.listenForEvents(wallet.provider);
       const storedAccount = localStorage.getItem('verifyAccount');
       const token = localStorage.getItem('authToken');
       const expiry = localStorage.getItem('tokenExpiry');
@@ -147,7 +164,11 @@ export class EvmWalletServices {
         Date.now() > Number(expiry)
       ) {
           this.authenticate(account[0]);
+      }else{
+        updateState.isVerified = true
       }
+      this.updateState(updateState)
+      this.listenForEvents(wallet.provider);
       return true;
     } catch (err) {
       this.updateState({isLoading:false})
@@ -158,8 +179,8 @@ export class EvmWalletServices {
   private listenForEvents(provider: any) {
     provider.on("accountsChanged", (accounts: string[]) => {
       console.log(accounts,"list");
-      if(!accounts.length) this.disconnect();
-      this.updateState({address : accounts[0]})
+      if(!accounts.length) {this.disconnect(); return}
+      this.updateState({isVerified : false,address : accounts[0]})
       this.authenticate(accounts[0]);
     });
 
@@ -188,6 +209,10 @@ export class EvmWalletServices {
   }
 
   disconnect() {
-    this.updateState(this.defaultState)
+    const provider = this.walletState$.getValue()?.provider
+    if(provider) {
+        provider.removeAllListeners();  
+    }
+    this.updateState(this.defaultState);
   }
 }

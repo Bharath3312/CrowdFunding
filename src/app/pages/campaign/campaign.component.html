@@ -58,391 +58,426 @@
               <!-- <button class="bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 px-6 py-3 rounded-lg font-semibold transition-colors duration-200" (click)="shareCampaign()">
               Share
             </button> -->
-            @if (walletState.address?.toLowerCase() !== campaign.owner.toLowerCase()) {
-              <!-- fund -->
-                @if(campaign.status === 0 ){
-                    <button  class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200" 
-                      (click)="doFunding(fundInput.value)"
-                    >
-                      Fund
-                    </button>
-                  <input
-                    #fundInput
-                    type="number"
-                    [value]="campaign.minAmount"
-                    placeholder="Amount"
-                    [min]="campaign.minAmount"
-                    [max]="campaign.goal - campaign.raised"
-                    class="w-full px-4 py-3 rounded-lg
-                          bg-white dark:bg-gray-700
-                          border border-gray-300 dark:border-gray-600
-                          text-gray-900 dark:text-white
-                          focus:ring-2 focus:ring-blue-500"
-                  />
-                }
-                <!-- voting -->
-                @else if(campaign.status === 1){
-                  @if(campaign.votingRaised >0 ){
-                      @if(votingResults()[0].status == 0 && !myCurrentVoteStatus()){
-                        <div class="w-full p-5 rounded-xl border 
-                          bg-yellow-50 border-yellow-200 
-                          dark:bg-yellow-900/20 dark:border-yellow-700">
-      
-                          <!-- Info Message -->
-                          <div class="text-center mb-4">
-                            <p class="text-sm text-yellow-800 dark:text-yellow-300 font-medium">
-                              The campaign owner has requested to withdraw the raised funds.
-                            </p>
-                            <p class="text-xs text-yellow-700 dark:text-yellow-400 mt-1">
-                              Please cast your vote to approve or reject this request.
-                            </p>
-                          </div>
-      
-                          <!-- Voting Buttons -->
-                          <div class="flex gap-4">
-      
-                            <!-- Approve Button -->
-                            <button 
-                              (click)="vote(true)"
-                              class="flex-1 bpx-4 py-2 bg-indigo-600 hover:bg-indigo-700 
-                              text-white px-6 py-3 rounded-lg font-semibold rounded-lg transition">
-                              Approve
-                            </button>
-                            <!-- Reject Button -->
-                            <button 
-                              (click)="vote(false)"
-                              class="flex-1 bg-red-600 hover:bg-red-700 
-                                    dark:bg-red-500 dark:hover:bg-red-600
-                                    text-white px-6 py-3 rounded-lg font-semibold 
-                                    transition-all duration-200 shadow-md">
-                              Reject
-                            </button>
-                          </div>
-                        </div>
-                      }
-                      @else if(votingResults()[0].status === 0 && myCurrentVoteStatus()){
-                        <div class="rounded-xl border border-blue-200 dark:border-blue-700 
-                                    bg-blue-50 dark:bg-blue-900/20 p-6 text-center">
-
-                          <h4 class="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-2">
-                            Vote Submitted ✅
-                          </h4>
-
-                          <p class="text-sm text-blue-700 dark:text-blue-400">
-                            Thank you for voting! Your response has been recorded.
-                          </p>
-
-                          <p class="text-xs text-blue-600 dark:text-blue-400 mt-2">
-                            Waiting for other backers to cast their votes...
-                          </p>
-                        </div>
-                      }
-                      @else if(votingResults()[0].status == 2){
-                        <div class="rounded-xl border border-gray-200 dark:border-gray-700 
-                                    bg-gray-50 dark:bg-gray-800/40 p-6 text-center">
-
-                          <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                            Withdrawal Proposal Rejected
-                          </h4>
-
-                          <p class="text-sm text-gray-600 dark:text-gray-400">
-                            The previous withdrawal request was rejected by the backers.
-                          </p>
-
-                          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                            There is currently no active withdrawal proposal.
-                          </p>
-                          
-                        </div>
-
-                      }
-                  }@else {
-                    <div class="rounded-xl border border-blue-200 dark:border-blue-700 
-                        bg-blue-50 dark:bg-blue-900/20 p-6 text-center">
-                        <h4 class="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-2">
-                          Campaign Successfully Funded 🎉
-                        </h4>
-                        <p class="text-sm text-blue-800 dark:text-blue-400">
-                          The funding goal has been reached. 
-                          The campaign owner has not yet initiated a withdrawal request.
-                        </p>
-                        <p class="text-xs text-blue-700 dark:text-blue-500 mt-2">
-                          Once a withdrawal proposal is created, you will be able to cast your vote.
-                        </p>
-                    </div>
-
+            @if(walletState.isConnected && walletState.isVerified){
+              
+              @if (walletState.address?.toLowerCase() !== campaign.owner.toLowerCase()) {
+                <!-- fund -->
+                  @if(campaign.status === 0 ){
+                      <button  class="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors duration-200" 
+                        (click)="doFunding(fundInput.value)"
+                      >
+                        Fund
+                      </button>
+                    <input
+                      #fundInput
+                      type="number"
+                      [value]="campaign.minAmount"
+                      placeholder="Amount"
+                      [min]="campaign.minAmount"
+                      [max]="campaign.goal - campaign.raised"
+                      class="w-full px-4 py-3 rounded-lg
+                            bg-white dark:bg-gray-700
+                            border border-gray-300 dark:border-gray-600
+                            text-gray-900 dark:text-white
+                            focus:ring-2 focus:ring-blue-500"
+                    />
                   }
-
-
-                } 
-                <!-- withdraw content -->
-                @else if(campaign.status === 2 ){
-                    <div class="w-full py-4 px-5 rounded-lg 
-                                bg-green-100 dark:bg-green-800 
-                                text-green-800 dark:text-green-200 
-                                text-center font-semibold">
-
-                      Withdrawal Proposal Approved
-
-                      <p class="text-sm font-normal mt-2">
-                        The withdrawal request has been approved.
-                        The campaign owner may now withdraw the funds.
-                      </p>
-
-                    </div>
-
-                }
-                <!-- refund -->
-                @else if(campaign.status === 3 ){
-                  <div class="flex flex-col items-center gap-4 w-full">
-
-                    <!-- Status Message -->
-                    <div class="w-full py-3 px-4 rounded-lg 
-                                bg-red-100 dark:bg-red-800 
-                                text-red-800 dark:text-red-200 
-                                font-semibold text-center">
-
-                      This campaign has been rejected by backers.
-
-                    </div>
-
-                    <!-- Refund Button -->
-                    <button 
-                      (click)="refund()"
-                      class="self-center bg-blue-600 hover:bg-blue-700 
-                            dark:bg-blue-500 dark:hover:bg-blue-600 
-                            text-white px-6 py-3 rounded-lg 
-                            font-semibold transition-colors duration-200">
-
-                      Claim Refund
-
-                    </button>
-
-                  </div>
-
-                }
-                <!-- completed -->
-                @else if(campaign.status === 4 ){
-                    <div class="w-full py-5 px-6 rounded-xl 
+                  <!-- voting -->
+                  @else if(campaign.status === 1){
+                    @if(campaign.votingRaised >0 ){
+                        @if(votingResults()[0].status == 0 && !myCurrentVoteStatus()){
+                          <div class="w-full p-5 rounded-xl border 
+                            bg-yellow-50 border-yellow-200 
+                            dark:bg-yellow-900/20 dark:border-yellow-700">
+        
+                            <!-- Info Message -->
+                            <div class="text-center mb-4">
+                              <p class="text-sm text-yellow-800 dark:text-yellow-300 font-medium">
+                                The campaign owner has requested to withdraw the raised funds.
+                              </p>
+                              <p class="text-xs text-yellow-700 dark:text-yellow-400 mt-1">
+                                Please cast your vote to approve or reject this request.
+                              </p>
+                            </div>
+        
+                            <!-- Voting Buttons -->
+                            <div class="flex gap-4">
+        
+                              <!-- Approve Button -->
+                              <button 
+                                (click)="vote(true)"
+                                class="flex-1 bpx-4 py-2 bg-indigo-600 hover:bg-indigo-700 
+                                text-white px-6 py-3 rounded-lg font-semibold rounded-lg transition">
+                                Approve
+                              </button>
+                              <!-- Reject Button -->
+                              <button 
+                                (click)="vote(false)"
+                                class="flex-1 bg-red-600 hover:bg-red-700 
+                                      dark:bg-red-500 dark:hover:bg-red-600
+                                      text-white px-6 py-3 rounded-lg font-semibold 
+                                      transition-all duration-200 shadow-md">
+                                Reject
+                              </button>
+                            </div>
+                          </div>
+                        }
+                        @else if(votingResults()[0].status === 0 && myCurrentVoteStatus()){
+                          <div class="rounded-xl border border-blue-200 dark:border-blue-700 
+                                      bg-blue-50 dark:bg-blue-900/20 p-6 text-center">
+  
+                            <h4 class="text-lg font-semibold text-blue-800 dark:text-blue-300 mb-2">
+                              Vote Submitted ✅
+                            </h4>
+  
+                            <p class="text-sm text-blue-700 dark:text-blue-400">
+                              Thank you for voting! Your response has been recorded.
+                            </p>
+  
+                            <p class="text-xs text-blue-600 dark:text-blue-400 mt-2">
+                              Waiting for other backers to cast their votes...
+                            </p>
+                          </div>
+                        }
+                        @else if(votingResults()[0].status == 2){
+                          <div class="rounded-xl border border-gray-200 dark:border-gray-700 
+                                      bg-gray-50 dark:bg-gray-800/40 p-6 text-center">
+  
+                            <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                              Withdrawal Proposal Rejected
+                            </h4>
+  
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                              The previous withdrawal request was rejected by the backers.
+                            </p>
+  
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                              There is currently no active withdrawal proposal.
+                            </p>
+                            
+                          </div>
+  
+                        }
+                    }@else {
+                      <div class="rounded-xl border border-blue-200 dark:border-blue-700 
+                          bg-blue-50 dark:bg-blue-900/20 p-6 text-center">
+                          <h4 class="text-lg font-semibold text-blue-900 dark:text-blue-300 mb-2">
+                            Campaign Successfully Funded 🎉
+                          </h4>
+                          <p class="text-sm text-blue-800 dark:text-blue-400">
+                            The funding goal has been reached. 
+                            The campaign owner has not yet initiated a withdrawal request.
+                          </p>
+                          <p class="text-xs text-blue-700 dark:text-blue-500 mt-2">
+                            Once a withdrawal proposal is created, you will be able to cast your vote.
+                          </p>
+                      </div>
+  
+                    }
+  
+  
+                  } 
+                  <!-- withdraw content -->
+                  @else if(campaign.status === 2 ){
+                      <div class="w-full py-4 px-5 rounded-lg 
                                   bg-green-100 dark:bg-green-800 
                                   text-green-800 dark:text-green-200 
-                                  text-center">
-
-                        <h4 class="text-lg font-semibold">
-                          Campaign Successfully Funded 🎉
-                        </h4>
-
-                        <p class="text-sm mt-2">
-                          The campaign reached its goal and the funds have been 
-                          released to the campaign owner.
+                                  text-center font-semibold">
+  
+                        Withdrawal Proposal Approved
+  
+                        <p class="text-sm font-normal mt-2">
+                          The withdrawal request has been approved.
+                          The campaign owner may now withdraw the funds.
                         </p>
-
+  
                       </div>
-                }
-                <!-- Failed -->
-                @else if(campaign.status == 5){
-                  <!-- <div class="w-full py-4 px-5 rounded-lg 
-                              bg-red-100 dark:bg-red-800 
-                              text-red-800 dark:text-red-200 
-                              text-center font-semibold">
-
-                        Campaign Failed
-
-                      <p class="text-sm font-normal mt-2">
-                        All contributions have been refunded.
-                        This campaign is now permanently closed.
-                      </p>
-                    </div> -->
-                <div class="w-full py-5 px-6 rounded-xl 
-                    bg-red-100 dark:bg-red-800 
-                    text-red-800 dark:text-red-200 
-                    text-center">
-
-                  <h4 class="text-lg font-semibold">
-                    Campaign Unsuccessful
-                  </h4>
-
-                  <p class="text-sm mt-2">
-                    The campaign has ended without success.
-                    All contributions have been refunded.
-                  </p>
-
-                </div>
-
-              }
-            }
-            @else if (walletState.address?.toLowerCase() === campaign.owner.toLowerCase()) {
-              <!-- ask investores / raise vote for take campaign amount  -->
-              @if (campaign.raised >= campaign.goal && campaign.votingRaised === 0) {
-                <div class="rounded-xl border border-indigo-200 dark:border-indigo-700 
-                            bg-indigo-50 dark:bg-indigo-900/20 p-6">
-
-                  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-                    <!-- Left Content -->
-                    <div>
-                      <h4 class="text-lg font-semibold text-indigo-900 dark:text-indigo-300">
-                        Campaign Fully Funded 🎉
-                      </h4>
-
-                      <p class="text-sm text-indigo-800 dark:text-indigo-400 mt-1">
-                        Your campaign has successfully reached its funding goal.
-                        You can now initiate a withdrawal proposal for investor voting.
-                      </p>
-                    </div>
-
-                    <!-- Action Button -->
-                    <button 
-                      (click)="raiseVote()"
-                      class="bg-indigo-600 hover:bg-indigo-700 
-                            dark:bg-indigo-500 dark:hover:bg-indigo-600 
-                            text-white px-6 py-3 rounded-lg font-semibold 
-                            transition-all duration-200 shadow-md">
-
-                      Initiate Withdrawal Vote
-
-                    </button>
-
-                  </div>
-
-                </div>
-              }
-              @else if(campaign.status === 1 && campaign.votingRaised >0){
-                  @if(votingResults()[0]?.status === 2){
-                      <div class="rounded-xl border border-red-200 dark:border-red-700 
-                            bg-red-50 dark:bg-red-900/20 p-6 text-center">
-                          <h4 class="text-lg font-semibold text-red-800 dark:text-red-300 mb-2">
-                            Withdrawal Proposal Rejected
-                          </h4>
-
-                          <p class="text-sm text-red-700 dark:text-red-400">
-                            The investors have rejected the withdrawal request.
-                          </p>
-
-                          <p class="text-xs text-red-600 dark:text-red-400 mt-2">
-                            You may submit a new withdrawal proposal if you have remaining attempts.
-                          </p>
+  
+                  }
+                  <!-- refund -->
+                  @else if(campaign.status === 3 ){
+                    <div class="flex flex-col items-center gap-4 w-full">
+  
+                      <!-- Status Message -->
+                      <div class="w-full py-3 px-4 rounded-lg 
+                                  bg-red-100 dark:bg-red-800 
+                                  text-red-800 dark:text-red-200 
+                                  font-semibold text-center">
+  
+                        This campaign has been rejected by backers.
+  
                       </div>
-
-                     <button 
-                        (click)="raiseVote()"
-                        class="self-start mt-4 bg-indigo-600 hover:bg-indigo-700 
-                              text-white px-5 py-2.5 rounded-lg 
-                              text-sm font-semibold transition">
-
-                        Submit New Proposal
+  
+                      <!-- Refund Button -->
+                      <button 
+                        (click)="refund()"
+                        class="self-center bg-blue-600 hover:bg-blue-700 
+                              dark:bg-blue-500 dark:hover:bg-blue-600 
+                              text-white px-6 py-3 rounded-lg 
+                              font-semibold transition-colors duration-200">
+  
+                        Claim Refund
+  
                       </button>
-
-
-
+  
+                    </div>
+  
                   }
-                  @else{
-                    <div class="text-center w-full py-3 px-4 rounded-lg bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 font-semibold">Waiting for Investors' Vote to Release Funds.</div>
-                    
+                  <!-- completed -->
+                  @else if(campaign.status === 4 ){
+                      <div class="w-full py-5 px-6 rounded-xl 
+                                    bg-green-100 dark:bg-green-800 
+                                    text-green-800 dark:text-green-200 
+                                    text-center">
+  
+                          <h4 class="text-lg font-semibold">
+                            Campaign Successfully Funded 🎉
+                          </h4>
+  
+                          <p class="text-sm mt-2">
+                            The campaign reached its goal and the funds have been 
+                            released to the campaign owner.
+                          </p>
+  
+                        </div>
                   }
-              }
-              <!-- can withdraw -->
-              @else if(campaign.status === 2){
-                <div class="flex flex-col items-center gap-4 w-full">
-                  <div class="w-full py-4 px-5 rounded-lg 
-                              bg-green-100 dark:bg-green-800 
-                              text-green-800 dark:text-green-200 
-                              text-center font-semibold">
-
-                    Withdrawal Proposal Approved
-
-                    <p class="text-sm font-normal mt-2">
-                      Backers have approved your withdrawal request.
-                      You may now withdraw the funds.
-                    </p>
-
-                  </div>
-                  <button 
-                    (click)="withdrawFunds()"
-                    class="bg-green-600 hover:bg-green-700 
-                          text-white px-6 py-3 rounded-lg 
-                          font-semibold transition">
-
-                    Withdraw Funds
-
-                  </button>
-                </div>
-
-              }
-              <!-- refund -->
-              @else if(campaign.status === 3){
-                <div class="flex flex-col gap-4 w-full">
-                  <!-- Status Card -->
-                  <div class="w-full py-4 px-5 rounded-lg 
-                              bg-red-100 dark:bg-red-800 
-                              text-red-800 dark:text-red-200 
-                              font-semibold text-center">
-
-                    Withdrawal Proposal Rejected
-
-                    <p class="text-sm font-normal mt-2">
-                      The withdrawal request was rejected by backers. 
-                      Funds cannot be released.
-                    </p>
-
-                  </div>
-                  <!-- Info Section -->
-                  <div class="text-sm text-gray-600 dark:text-gray-400 text-center">
-
-                    Backers are now eligible to claim refunds.
-
-                  </div>
-                </div>
-              }
-              <!-- completed -->
-              @else if (campaign.status === 4) {
-                <div class="w-full py-5 px-6 rounded-xl 
-                  bg-green-100 dark:bg-green-800 
-                  text-green-800 dark:text-green-200 
-                  text-center">
-
-                  <h4 class="text-lg font-semibold">
-                    Campaign Successfully Completed 🎉
-                  </h4>
-
-                  <p class="text-sm mt-2">
-                    Your campaign has been successfully funded and the approved funds 
-                    have been transferred to your wallet.
-                  </p>
-                </div>
-              }
-              <!-- failed -->
-              @else if(campaign.status === 5){
-                <!-- <div class="w-full py-4 px-5 rounded-lg 
-                              bg-red-100 dark:bg-red-800 
-                              text-red-800 dark:text-red-200 
-                              text-center font-semibold">
-
-                    Campaign Failed
-
-                    <p class="text-sm font-normal mt-2">
-                      All contributions have been refunded.
-                      This campaign is now permanently closed.
-                    </p>
-
-                  </div> -->
+                  <!-- Failed -->
+                  @else if(campaign.status == 5){
+                    <!-- <div class="w-full py-4 px-5 rounded-lg 
+                                bg-red-100 dark:bg-red-800 
+                                text-red-800 dark:text-red-200 
+                                text-center font-semibold">
+  
+                          Campaign Failed
+  
+                        <p class="text-sm font-normal mt-2">
+                          All contributions have been refunded.
+                          This campaign is now permanently closed.
+                        </p>
+                      </div> -->
                   <div class="w-full py-5 px-6 rounded-xl 
                       bg-red-100 dark:bg-red-800 
                       text-red-800 dark:text-red-200 
                       text-center">
-
+  
                     <h4 class="text-lg font-semibold">
-                      Campaign Closed – Unsuccessful
+                      Campaign Unsuccessful
                     </h4>
-
+  
                     <p class="text-sm mt-2">
-                      This campaign did not meet the required conditions.
-                      All contributions have been refunded to backers.
+                      The campaign has ended without success.
+                      All contributions have been refunded.
                     </p>
-
+  
                   </div>
-
-
+  
+                }
+              }
+              @else if (walletState.address?.toLowerCase() === campaign.owner.toLowerCase()) {
+                <!-- ask investores / raise vote for take campaign amount  -->
+                @if (campaign.raised >= campaign.goal && campaign.votingRaised === 0) {
+                  <div class="rounded-xl border border-indigo-200 dark:border-indigo-700 
+                              bg-indigo-50 dark:bg-indigo-900/20 p-6">
+  
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+  
+                      <!-- Left Content -->
+                      <div>
+                        <h4 class="text-lg font-semibold text-indigo-900 dark:text-indigo-300">
+                          Campaign Fully Funded 🎉
+                        </h4>
+  
+                        <p class="text-sm text-indigo-800 dark:text-indigo-400 mt-1">
+                          Your campaign has successfully reached its funding goal.
+                          You can now initiate a withdrawal proposal for investor voting.
+                        </p>
+                      </div>
+  
+                      <!-- Action Button -->
+                      <button 
+                        (click)="raiseVote()"
+                        class="bg-indigo-600 hover:bg-indigo-700 
+                              dark:bg-indigo-500 dark:hover:bg-indigo-600 
+                              text-white px-6 py-3 rounded-lg font-semibold 
+                              transition-all duration-200 shadow-md">
+  
+                        Initiate Withdrawal Vote
+  
+                      </button>
+  
+                    </div>
+  
+                  </div>
+                }
+                @else if(campaign.status === 1 && campaign.votingRaised >0){
+                    @if(votingResults()[0]?.status === 2){
+                        <div class="rounded-xl border border-red-200 dark:border-red-700 
+                              bg-red-50 dark:bg-red-900/20 p-6 text-center">
+                            <h4 class="text-lg font-semibold text-red-800 dark:text-red-300 mb-2">
+                              Withdrawal Proposal Rejected
+                            </h4>
+  
+                            <p class="text-sm text-red-700 dark:text-red-400">
+                              The investors have rejected the withdrawal request.
+                            </p>
+  
+                            <p class="text-xs text-red-600 dark:text-red-400 mt-2">
+                              You may submit a new withdrawal proposal if you have remaining attempts.
+                            </p>
+                        </div>
+  
+                       <button 
+                          (click)="raiseVote()"
+                          class="self-start mt-4 bg-indigo-600 hover:bg-indigo-700 
+                                text-white px-5 py-2.5 rounded-lg 
+                                text-sm font-semibold transition">
+  
+                          Submit New Proposal
+                        </button>
+  
+  
+  
+                    }
+                    @else{
+                      <div class="text-center w-full py-3 px-4 rounded-lg bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 font-semibold">Waiting for Investors' Vote to Release Funds.</div>
+                      
+                    }
+                }
+                <!-- can withdraw -->
+                @else if(campaign.status === 2){
+                  <div class="flex flex-col items-center gap-4 w-full">
+                    <div class="w-full py-4 px-5 rounded-lg 
+                                bg-green-100 dark:bg-green-800 
+                                text-green-800 dark:text-green-200 
+                                text-center font-semibold">
+  
+                      Withdrawal Proposal Approved
+  
+                      <p class="text-sm font-normal mt-2">
+                        Backers have approved your withdrawal request.
+                        You may now withdraw the funds.
+                      </p>
+  
+                    </div>
+                    <button 
+                      (click)="withdrawFunds()"
+                      class="bg-green-600 hover:bg-green-700 
+                            text-white px-6 py-3 rounded-lg 
+                            font-semibold transition">
+  
+                      Withdraw Funds
+  
+                    </button>
+                  </div>
+  
+                }
+                <!-- refund -->
+                @else if(campaign.status === 3){
+                  <div class="flex flex-col gap-4 w-full">
+                    <!-- Status Card -->
+                    <div class="w-full py-4 px-5 rounded-lg 
+                                bg-red-100 dark:bg-red-800 
+                                text-red-800 dark:text-red-200 
+                                font-semibold text-center">
+  
+                      Withdrawal Proposal Rejected
+  
+                      <p class="text-sm font-normal mt-2">
+                        The withdrawal request was rejected by backers. 
+                        Funds cannot be released.
+                      </p>
+  
+                    </div>
+                    <!-- Info Section -->
+                    <div class="text-sm text-gray-600 dark:text-gray-400 text-center">
+  
+                      Backers are now eligible to claim refunds.
+  
+                    </div>
+                  </div>
+                }
+                <!-- completed -->
+                @else if (campaign.status === 4) {
+                  <div class="w-full py-5 px-6 rounded-xl 
+                    bg-green-100 dark:bg-green-800 
+                    text-green-800 dark:text-green-200 
+                    text-center">
+  
+                    <h4 class="text-lg font-semibold">
+                      Campaign Successfully Completed 🎉
+                    </h4>
+  
+                    <p class="text-sm mt-2">
+                      Your campaign has been successfully funded and the approved funds 
+                      have been transferred to your wallet.
+                    </p>
+                  </div>
+                }
+                <!-- failed -->
+                @else if(campaign.status === 5){
+                  <!-- <div class="w-full py-4 px-5 rounded-lg 
+                                bg-red-100 dark:bg-red-800 
+                                text-red-800 dark:text-red-200 
+                                text-center font-semibold">
+  
+                      Campaign Failed
+  
+                      <p class="text-sm font-normal mt-2">
+                        All contributions have been refunded.
+                        This campaign is now permanently closed.
+                      </p>
+  
+                    </div> -->
+                    <div class="w-full py-5 px-6 rounded-xl 
+                        bg-red-100 dark:bg-red-800 
+                        text-red-800 dark:text-red-200 
+                        text-center">
+  
+                      <h4 class="text-lg font-semibold">
+                        Campaign Closed – Unsuccessful
+                      </h4>
+  
+                      <p class="text-sm mt-2">
+                        This campaign did not meet the required conditions.
+                        All contributions have been refunded to backers.
+                      </p>
+  
+                    </div>
+  
+  
+                }
+              }
+            }@else {
+              @if(walletState.isConnected && !walletState.isVerified){
+                  <div class="text-center w-full py-3 px-4 rounded-lg bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-200 font-semibold">Please Verify Signin.</div>
+              }
+              @else {
+                <button
+                   (click)="walletDetails && connectWallet(walletDetails)"
+                   [disabled]="!walletDetails"
+                   class="flex items-center justify-center gap-3
+                         w-full px-6 py-3 rounded-xl
+                         bg-indigo-600 hover:bg-indigo-700
+                         dark:bg-indigo-500 dark:hover:bg-indigo-600
+                         text-white text-sm font-semibold
+                         transition-all duration-200
+                         shadow-md hover:shadow-lg
+                         disabled:opacity-50 disabled:pointer-events-none">
+ 
+                   <!-- Wallet icon -->
+                   
+                   <!-- Label -->
+                   <span>Connect MetaMask</span>
+                   @if (walletDetails?.icon) {
+                     <img
+                       [src]="walletDetails?.icon"
+                       width="22"
+                       height="22"
+                       class="rounded-sm"
+                       alt="MetaMask icon" />
+                   }
+                   
+                 </button>
               }
             }
           </div>

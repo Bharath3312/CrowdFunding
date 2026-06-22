@@ -58,7 +58,7 @@
         Failed
       </p>
       <p class="mt-2 text-xl font-semibold text-red-600">
-        {{ "0" }}
+        {{ failedCampaigns }}
       </p>
     </div>
 
@@ -135,5 +135,15 @@
     >
       No campaigns found for this filter.
     </div>
+    @if(totalPage && page < totalPage){
+      <div class="text-center mt-6">
+        <button   class="px-6 py-2 bg-indigo-600 text-white rounded-lg disabled:opacity-50"
+        (click)="loadMore()"
+        >
+          
+            Load More
+        </button>
+      </div>
+    }
   </div>
 </div>
