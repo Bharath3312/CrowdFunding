@@ -12,8 +12,12 @@
 
 
 import { CommonModule, CurrencyPipe, DecimalPipe, NgClass } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { ApiServiceService } from '../../services/api-service.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { EvmWalletServices } from '../../services/evm-wallet.services';
+import { ToastService } from '../../services/toast.service';
+import { WalletState } from '../../models/wallet-provider.model';
 
 type CampaignStatus = 'Active' | 'Successful' | 'Failed';
 type CampaignFilter = 'All' | CampaignStatus;
@@ -38,7 +42,9 @@ interface Campaign {
 })
 export class MyCampaignsComponent {
   selectedFilter: CampaignFilter = 'All';
-  apiServices = inject(ApiServiceService);
+  private apiServices = inject(ApiServiceService);
+  private walletServices = inject(EvmWalletServices);
+  private toast = inject(ToastService)
   campaigns = signal<Campaign[]>([]);
   totalCampaigns:number = 0;
   activeCampaigns:number =0;
@@ -48,6 +54,46 @@ export class MyCampaignsComponent {
   totalBackers:number = 0;
   page:number =1;
   totalPage?:number;
+  
+  walletState : WalletState  = this.walletServices.walletState$.getValue();
+  
+  wallet$ = toSignal(
+      this.walletServices.walletState$Observable,
+      {initialValue : this.walletServices.walletState$.getValue()}
+    )
+  
+   constructor( ){
+        effect(()=>{
+          const state = this.wallet$();
+          console.log(state,"from in my Campaign-component...",state);
+          if(!state.isConnected){
+            this.campaigns.set([]);
+            this.totalCampaigns , 
+            this.activeCampaigns , 
+            this.successfulCampaigns,
+            this.failedCampaigns , 
+            this.totalRaised,
+            this.totalBackers = 0;
+            this.totalPage = 1
+            // this.toast.error('Error','Please connect your wallet to create a campaign');
+          }else if(!state.isVerified && this.walletState.isVerified){
+            this.campaigns.set([]);
+            this.totalCampaigns , 
+            this.activeCampaigns , 
+            this.successfulCampaigns,
+            this.failedCampaigns , 
+            this.totalRaised,
+            this.totalBackers = 0;
+            this.totalPage = 1
+              this.toast.error('Error','Please Verify the you wallet..');
+            
+          }else{
+            this.getCampaigns();
+          }
+          this.walletState = state;
+        })
+   }
+
    ngOnInit(){
      this.getCampaigns();
    }
